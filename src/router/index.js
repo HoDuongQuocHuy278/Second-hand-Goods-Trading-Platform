@@ -2,16 +2,8 @@ import { createRouter, createWebHistory } from "vue-router"; // cài vue-router:
 
 const routes = [
   {
-    path: "/",
-    component: () => import("../components/Test/index.vue"),
-  },
-  {
     path: "/trang-chu",
     component: () => import("../components/TrangChu/index.vue"),
-  },
-  {
-    path: "/on-for",
-    component: () => import("../components/on_for/index.vue"),
   },
   {
     path: "/dang-ki",

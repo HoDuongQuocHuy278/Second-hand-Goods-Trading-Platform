@@ -1,5 +1,5 @@
 <template>
-  <div>
+
     <body class="bg-light">
     
     <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
@@ -35,11 +35,8 @@
         </form>
       </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   </body>
-    
-  </div>
 </template>
 <script>
 export default {
