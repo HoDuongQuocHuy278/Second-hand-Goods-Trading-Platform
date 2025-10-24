@@ -19,6 +19,14 @@
 						<div class="menu-title">Trang chủ</div>
 					</a>
 				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/trang-ban-hang">
+						<div class="parent-icon"><i class="bx bx-category"></i>
+						</div>
+						<div class="menu-title">Trang Bán Hàng</div>
+					</a>
+				</li>
+				
 			</ul>
 		</nav>
 	</div>

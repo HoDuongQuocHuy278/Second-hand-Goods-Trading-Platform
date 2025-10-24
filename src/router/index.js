@@ -21,6 +21,11 @@ const routes = [
     path: "/kich-hoat",
     component: () => import("../components/KichHoat/index.vue"),
   },
+  {
+    path: "/trang-ban-hang",
+    component: () => import("../components/TrangBanHang/index.vue"),
+  },
+
 ];
 const router = createRouter({
   history: createWebHistory(),
