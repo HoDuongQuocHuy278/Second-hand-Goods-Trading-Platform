@@ -6,12 +6,20 @@ const routes = [
     component: () => import("../components/TrangChu/index.vue"),
   },
   {
-    path: "/dang-ki",
-    component: () => import("../components/DangKi/index.vue"),
+    path: "/dang-ky",
+    component: () => import("../components/DangKy/index.vue"),
   },
   {
     path: "/dang-nhap",
     component: () => import("../components/DangNhap/index.vue"),
+  },
+  {
+    path: "/sell",
+    component: () => import("../components/Sell/index.vue"),
+  },
+  {
+    path: "/kich-hoat",
+    component: () => import("../components/KichHoat/index.vue"),
   },
 ];
 const router = createRouter({
