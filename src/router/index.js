@@ -27,10 +27,19 @@ const routes = [
     component: () => import("../components/TrangBanHang/index.vue"),
   },
   {
+    path: "/admin/quan-ly-nguoi-dung",
+    name: "admin.qlnguoidung",
+    component: () => import("../components/admin/QuanLyNguoiDung/index.vue"),
+  },
+  {
+    path: "/admin/quan-ly-san-pham",
+    name: "admin.qlsanpham",
+    component: () => import("../components/admin/QuanLySanPham/index.vue"),
+  },
+  {
     path: "/profile",
     component: () => import("../components/Profile/index.vue"),
   },
- 
 
 ];
 const router = createRouter({
