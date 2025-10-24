@@ -26,6 +26,10 @@ const routes = [
     path: "/trang-ban-hang",
     component: () => import("../components/TrangBanHang/index.vue"),
   },
+  {
+    path: "/profile",
+    component: () => import("../components/Profile/index.vue"),
+  },
 
 ];
 const router = createRouter({
