@@ -18,7 +18,8 @@ const routes = [
     component: () => import("../components/Sell/index.vue"),
   },
   {
-    path: "/kich-hoat",
+    path: "/client/kich-hoat/:hash_active",
+    name: "client.kich-hoat",
     component: () => import("../components/KichHoat/index.vue"),
   },
 ];
