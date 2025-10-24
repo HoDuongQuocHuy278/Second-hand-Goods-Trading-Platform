@@ -30,6 +30,7 @@ const routes = [
     path: "/profile",
     component: () => import("../components/Profile/index.vue"),
   },
+ 
 
 ];
 const router = createRouter({

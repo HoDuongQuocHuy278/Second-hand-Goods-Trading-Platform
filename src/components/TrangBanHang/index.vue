@@ -38,13 +38,13 @@
           class="product-card"
           v-for="(product, index) in filteredProducts"
           :key="index"
+          @click="showDetail(product)"
         >
           <div v-if="product.discount > 0" class="discount-badge">
             -{{ product.discount }}%
           </div>
           <img :src="product.image" :alt="product.name" class="product-img" />
           <h3>{{ product.name }}</h3>
-  
           <p class="sold">Đã bán: {{ product.sold }} sản phẩm</p>
   
           <div class="price-section">
@@ -56,10 +56,78 @@
   
           <div class="btn-container">
             <button class="buy-btn">🛒 Thêm vào giỏ</button>
-            <button class="buy-btn">💰 Mua ngay</button>
+            <button class="buy-btn highlight">💰 Mua ngay</button>
           </div>
         </div>
       </main>
+  
+      <!-- Popup chi tiết sản phẩm -->
+      <div v-if="selectedProduct" class="detail-overlay" @click.self="closeDetail">
+        <div class="detail-box">
+          <button class="close-btn" @click="closeDetail">✖</button>
+  
+          <div class="detail-top">
+            <img :src="selectedProduct.image" class="detail-img" />
+            <div class="detail-info">
+              <h2>{{ selectedProduct.name }}</h2>
+  
+              <div class="rating">
+                <span v-for="n in 5" :key="n" class="star">
+                  {{ n <= selectedProduct.rating ? "★" : "☆" }}
+                </span>
+                <span class="rating-text">
+                  {{ selectedProduct.rating }}/5 ({{ selectedProduct.reviews.length }} đánh giá)
+                </span>
+              </div>
+  
+              <div class="price-box">
+                <p class="price">{{ formatPrice(finalPrice(selectedProduct)) }}</p>
+                <p v-if="selectedProduct.discount > 0" class="old-price">
+                  {{ formatPrice(selectedProduct.price) }}
+                </p>
+              </div>
+  
+              <p class="desc">{{ selectedProduct.description }}</p>
+  
+              <div class="actions">
+                <button class="buy-btn big">🛒 Thêm vào giỏ</button>
+                <button class="buy-btn highlight big">💰 Mua ngay</button>
+              </div>
+            </div>
+          </div>
+  
+          <div class="detail-bottom">
+            <h3>📄 Mô Tả Chi Tiết</h3>
+            <p>{{ selectedProduct.detail }}</p>
+  
+            <h3 style="margin-top: 20px">⭐ Đánh Giá Sản Phẩm</h3>
+            <div class="review" v-for="(r, i) in selectedProduct.reviews" :key="i">
+              <div class="review-header">
+                <strong>{{ r.user }}</strong>
+                <span class="stars">
+                  <span v-for="n in 5" :key="n">{{ n <= r.stars ? "★" : "☆" }}</span>
+                </span>
+              </div>
+              <p>{{ r.comment }}</p>
+            </div>
+  
+            <!-- 🆕 SẢN PHẨM TƯƠNG TỰ -->
+            <h3 style="margin-top: 25px">🛍 Sản Phẩm Tương Tự</h3>
+            <div class="similar-list">
+              <div
+                class="similar-card"
+                v-for="(item, idx) in similarProducts"
+                :key="idx"
+                @click="showDetail(item)"
+              >
+                <img :src="item.image" :alt="item.name" />
+                <p class="name">{{ item.name }}</p>
+                <p class="price">{{ formatPrice(finalPrice(item)) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </template>
   
@@ -71,6 +139,7 @@
         selectedCategory: "all",
         selectedPriceSort: "none",
         selectedDiscount: "all",
+        selectedProduct: null,
   
         categories: [
           "Đồ điện tử",
@@ -82,62 +151,113 @@
         ],
   
         products: [
-          { name: "Tai nghe Bluetooth", price: 459000, discount: 10, sold: 530, category: "Đồ điện tử", image: "https://cdn.pixabay.com/photo/2016/11/19/14/00/headphones-1839098_640.jpg" },
-          { name: "Loa Bluetooth", price: 349000, discount: 5, sold: 700, category: "Đồ điện tử", image: "https://cdn.pixabay.com/photo/2017/08/06/00/49/speaker-2585077_640.jpg" },
-          { name: "Chuột Gaming RGB", price: 299000, discount: 20, sold: 820, category: "Đồ điện tử", image: "https://cdn.pixabay.com/photo/2017/08/10/08/02/mouse-2629623_640.jpg" },
-          { name: "Bàn phím cơ", price: 890000, discount: 15, sold: 610, category: "Đồ điện tử", image: "https://cdn.pixabay.com/photo/2016/12/14/19/49/keyboard-1903302_640.jpg" },
-          { name: "Màn hình 24 inch", price: 3190000, discount: 5, sold: 410, category: "Đồ điện tử", image: "https://cdn.pixabay.com/photo/2014/09/23/21/25/monitor-458526_640.jpg" },
-          { name: "Máy hút bụi", price: 1399000, discount: 25, sold: 650, category: "Gia dụng", image: "https://cdn.pixabay.com/photo/2016/10/19/16/01/vacuum-cleaner-1756863_640.jpg" },
-          { name: "Nồi chiên không dầu", price: 1499000, discount: 30, sold: 710, category: "Gia dụng", image: "https://cdn.pixabay.com/photo/2021/03/05/19/57/fryer-6073568_640.jpg" },
-          { name: "Đèn bàn học LED", price: 189000, discount: 0, sold: 830, category: "Gia dụng", image: "https://cdn.pixabay.com/photo/2017/02/12/20/29/desk-lamp-2063603_640.jpg" },
-          { name: "Sạc dự phòng", price: 359000, discount: 15, sold: 720, category: "Phụ kiện", image: "https://cdn.pixabay.com/photo/2016/11/19/14/12/powerbank-1839115_640.jpg" },
-          { name: "Ốp điện thoại silicon", price: 69000, discount: 0, sold: 1300, category: "Phụ kiện", image: "https://cdn.pixabay.com/photo/2020/06/02/20/47/mobile-phone-5254822_640.jpg" },
-          { name: "Ba lô laptop", price: 395000, discount: 20, sold: 980, category: "Thời trang", image: "https://cdn.pixabay.com/photo/2017/01/31/14/52/backpack-2023910_640.jpg" },
-          { name: "Giày thể thao nam", price: 590000, discount: 15, sold: 1500, category: "Thời trang", image: "https://cdn.pixabay.com/photo/2016/11/29/09/32/shoes-1868412_640.jpg" },
-          { name: "Áo thun nam basic", price: 159000, discount: 10, sold: 1240, category: "Thời trang", image: "https://cdn.pixabay.com/photo/2016/10/02/22/17/t-shirt-1714660_640.jpg" },
-          { name: "Đồng hồ thông minh", price: 899000, discount: 0, sold: 1200, category: "Thiết bị thông minh", image: "https://cdn.pixabay.com/photo/2015/02/02/11/08/apple-watch-620292_640.jpg" },
-          { name: "Camera an ninh", price: 890000, discount: 5, sold: 420, category: "Thiết bị thông minh", image: "https://cdn.pixabay.com/photo/2019/05/22/17/09/camera-4225038_640.jpg" },
-          { name: "Xe điện mini", price: 6990000, discount: 30, sold: 95, category: "Khác", image: "https://cdn.pixabay.com/photo/2016/03/27/20/51/electric-scooter-1284126_640.jpg" },
-          { name: "Vali du lịch", price: 790000, discount: 10, sold: 280, category: "Khác", image: "https://cdn.pixabay.com/photo/2015/11/19/21/11/suitcase-1051652_640.jpg" },
-          { name: "Kính mát thời trang", price: 159000, discount: 0, sold: 560, category: "Khác", image: "https://cdn.pixabay.com/photo/2015/08/24/11/34/sunglasses-905780_640.jpg" },
+          {
+            name: "Tai nghe Bluetooth",
+            price: 459000,
+            discount: 10,
+            sold: 530,
+            category: "Đồ điện tử",
+            rating: 5,
+            description: "Tai nghe không dây chất lượng cao, pin 24 giờ.",
+            detail:
+              "Tai nghe Bluetooth 5.3, chống ồn chủ động, micro kép, sạc nhanh 30 phút.",
+            image:
+              "https://cdn.pixabay.com/photo/2016/11/19/14/00/headphones-1839098_640.jpg",
+            reviews: [
+              { user: "An Nguyễn", stars: 5, comment: "Nghe cực hay, pin trâu." },
+              { user: "Minh Lê", stars: 4, comment: "Âm thanh tốt, đáng tiền." },
+            ],
+          },
+          {
+            name: "Chuột Gaming RGB",
+            price: 299000,
+            discount: 20,
+            sold: 820,
+            category: "Đồ điện tử",
+            rating: 4,
+            description: "Chuột chơi game có đèn RGB, DPI lên đến 16000.",
+            detail:
+              "Cảm biến quang học chính xác, dây chống rối, thiết kế công thái học.",
+            image:
+              "https://cdn.pixabay.com/photo/2017/08/10/08/02/mouse-2629623_640.jpg",
+            reviews: [
+              { user: "Tấn Phát", stars: 5, comment: "Click êm, RGB đẹp lắm." },
+              { user: "Quốc Bảo", stars: 4, comment: "Ổn, hơi nhẹ nhưng giá rẻ." },
+            ],
+          },
+          {
+            name: "Màn hình 24 inch",
+            price: 3190000,
+            discount: 5,
+            sold: 410,
+            category: "Đồ điện tử",
+            rating: 4,
+            description: "Màn hình Full HD 24 inch, hiển thị sắc nét.",
+            detail:
+              "Độ phân giải 1080p, tần số quét 75Hz, góc nhìn rộng 178 độ.",
+            image:
+              "https://cdn.pixabay.com/photo/2014/09/23/21/25/monitor-458526_640.jpg",
+            reviews: [
+              { user: "Hữu Đạt", stars: 4, comment: "Màu đẹp, giá tốt." },
+            ],
+          },
+          {
+            name: "Giày thể thao nam",
+            price: 590000,
+            discount: 15,
+            sold: 1500,
+            category: "Thời trang",
+            rating: 5,
+            description: "Giày thể thao nam siêu nhẹ, kiểu dáng hiện đại.",
+            detail:
+              "Chất liệu thoáng khí, đế cao su siêu bền, phù hợp đi học, đi chơi.",
+            image:
+              "https://cdn.pixabay.com/photo/2016/11/29/09/32/shoes-1868412_640.jpg",
+            reviews: [
+              { user: "Thảo Nhi", stars: 5, comment: "Đẹp hơn trong hình ❤️" },
+              { user: "Văn Duy", stars: 5, comment: "Rất êm, đúng size." },
+            ],
+          },
         ],
       };
     },
-  
     computed: {
       filteredProducts() {
         let list = [...this.products];
-  
-        // Lọc theo danh mục
         if (this.selectedCategory !== "all") {
           list = list.filter((p) => p.category === this.selectedCategory);
         }
-  
-        // Lọc theo giảm giá
         if (this.selectedDiscount === "sale") {
           list = list.filter((p) => p.discount > 0);
         }
-  
-        // Sắp xếp theo giá
         if (this.selectedPriceSort === "asc") {
           list.sort((a, b) => this.finalPrice(a) - this.finalPrice(b));
         } else if (this.selectedPriceSort === "desc") {
           list.sort((a, b) => this.finalPrice(b) - this.finalPrice(a));
-        } else {
-          // ✅ Mặc định sắp xếp theo tên A → Z
-          list.sort((a, b) => a.name.localeCompare(b.name));
         }
-  
         return list;
       },
-    },
-  
-    methods: {
-      finalPrice(product) {
-        return product.price * (1 - product.discount / 100);
+      similarProducts() {
+        if (!this.selectedProduct) return [];
+        return this.products.filter(
+          (p) =>
+            p.category === this.selectedProduct.category &&
+            p.name !== this.selectedProduct.name
+        );
       },
-      formatPrice(value) {
-        return value.toLocaleString("vi-VN") + " ₫";
+    },
+    methods: {
+      showDetail(p) {
+        this.selectedProduct = p;
+      },
+      closeDetail() {
+        this.selectedProduct = null;
+      },
+      finalPrice(p) {
+        return p.price * (1 - p.discount / 100);
+      },
+      formatPrice(v) {
+        return v.toLocaleString("vi-VN") + " ₫";
       },
     },
   };
@@ -145,55 +265,66 @@
   
   <style scoped>
   .shop-container {
-    font-family: "Segoe UI", sans-serif;
-    background-color: #f6f6f6;
+    font-family: "Poppins", "Segoe UI", sans-serif;
+    background-color: #f9f9f9;
     min-height: 100vh;
     padding-bottom: 40px;
   }
+  
   .shop-title {
     text-align: center;
     color: #ff5722;
     padding: 20px;
-    font-size: 30px;
-    font-weight: bold;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 1px;
   }
+  
   .filter-bar {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
   }
+  
   .filter-group label {
     font-weight: bold;
-    margin-right: 5px;
+    margin-right: 6px;
     color: #444;
   }
+  
   .filter-group select {
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 15px;
+    background-color: #fff;
   }
+  
   .product-list {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 25px;
     padding: 20px 40px;
   }
+  
   .product-card {
     position: relative;
-    background-color: #fff;
-    border-radius: 10px;
+    background: #fff;
+    border-radius: 12px;
     text-align: center;
     padding: 15px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
   }
+  
   .product-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
   }
+  
   .discount-badge {
     position: absolute;
     top: 10px;
@@ -202,55 +333,228 @@
     color: white;
     font-weight: bold;
     padding: 5px 8px;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 13px;
   }
+  
   .product-img {
     width: 100%;
     height: 180px;
     object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 8px;
+    border-radius: 10px;
+    margin-bottom: 10px;
   }
+  
   .price-section {
     display: flex;
     justify-content: center;
     align-items: baseline;
     gap: 8px;
   }
+  
   .price {
     color: #e53935;
     font-weight: bold;
     font-size: 16px;
   }
+  
   .old-price {
     color: #999;
     font-size: 13px;
     text-decoration: line-through;
   }
+  
   .sold {
     font-size: 14px;
     color: #555;
   }
+  
   .btn-container {
     display: flex;
     justify-content: space-between;
-    gap: 6px;
+    gap: 8px;
     margin-top: 10px;
   }
+  
   .buy-btn {
     flex: 1;
     background-color: #ff5722;
     color: #fff;
     border: none;
-    padding: 6px 10px;
-    border-radius: 5px;
+    padding: 8px 10px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-    transition: background-color 0.2s;
+    transition: all 0.25s;
   }
+  
   .buy-btn:hover {
     background-color: #e64a19;
+    transform: scale(1.05);
+  }
+  
+  .highlight {
+    background: #ff9800;
+  }
+  
+  .big {
+    padding: 12px 18px;
+    font-size: 15px;
+  }
+  
+  /* Popup */
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    backdrop-filter: blur(2px);
+  }
+  
+  .detail-box {
+    width: 880px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 30px;
+    position: relative;
+    animation: zoomIn 0.3s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  }
+  
+  .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    border: none;
+    background: none;
+    font-size: 22px;
+    color: #777;
+    cursor: pointer;
+  }
+  
+  .close-btn:hover {
+    color: #000;
+  }
+  
+  .detail-top {
+    display: flex;
+    gap: 25px;
+  }
+  
+  .detail-img {
+    width: 340px;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+  
+  .detail-info {
+    flex: 1;
+  }
+  
+  .rating {
+    color: #ffb400;
+    margin: 8px 0;
+  }
+  
+  .rating-text {
+    font-size: 13px;
+    color: #666;
+    margin-left: 8px;
+  }
+  
+  .price-box {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .desc {
+    font-size: 14px;
+    color: #555;
+    margin: 15px 0;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .detail-bottom {
+    margin-top: 25px;
+  }
+  
+  .review {
+    border-top: 1px solid #eee;
+    padding: 10px 0;
+  }
+  
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .stars {
+    color: #ffb400;
+  }
+  
+  /* Sản phẩm tương tự */
+  .similar-list {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  
+  .similar-card {
+    width: 150px;
+    background: #fffdf8;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.25s;
+  }
+  
+  .similar-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .similar-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  .similar-card .name {
+    font-size: 14px;
+    color: #333;
+    margin: 6px 0 2px;
+    font-weight: 500;
+  }
+  
+  .similar-card .price {
+    color: #e53935;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  
+  @keyframes zoomIn {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
   </style>
   
