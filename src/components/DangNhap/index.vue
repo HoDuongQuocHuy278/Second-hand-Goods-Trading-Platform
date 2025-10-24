@@ -7,6 +7,7 @@
         <h3 class="text-center mb-4">Đăng nhập</h3>
         <form>
           <!-- Email -->
+           
           <div class="mb-3">
             <label for="email" class="form-label">Email hoặc Tên đăng nhập</label>
             <input type="email" class="form-control" id="email" placeholder="Nhập email của bạn">
@@ -25,12 +26,12 @@
           </div>
 
           <!-- Nút -->
-          <button type="submit" class="btn btn-success w-100">Đăng nhập</button>
+          <button v-on:click="login()" type="submit" class="btn btn-success w-100">Đăng nhập</button>
 
           <!-- Quên mật khẩu + Đăng ký -->
           <div class="d-flex justify-content-between mt-3">
             <a href="#">Quên mật khẩu?</a>
-            <a href="#">Đăng ký</a>
+            <a  href="#">Đăng ký</a>
           </div>
         </form>
       </div>
@@ -39,8 +40,34 @@
   </body>
 </template>
 <script>
+import axios from 'axios';
+import { get } from 'v-calendar/dist/types/src/utils/helpers.js';
 export default {
-  
+  data() {
+    return {
+      username: '',
+      password: '',
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        const response = await axios.post('https://your-api-url.com/login', {
+          username: this.username,
+          password: this.password,
+        });
+        if (response.data.success) {
+          alert('Đăng nhập thành công!');
+          this.$router.push('/trang-chu'); // Chuyển hướng sau khi đăng nhập thành công
+        } else {
+          alert('Tên đăng nhập hoặc mật khẩu không đúng!');
+        }
+      } catch (error) {
+        console.error('Đã xảy ra lỗi:', error);
+        alert('Đăng nhập thất bại. Vui lòng thử lại!');
+      }
+    },
+  }
 }
 </script>
 <style>

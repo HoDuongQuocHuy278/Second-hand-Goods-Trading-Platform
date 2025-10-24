@@ -7,7 +7,7 @@
 					<img src="../../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
 				</div>
 				<div class="">
-					<h4 class="logo-text">Rocker</h4>
+					<h4 class="logo-text">Bốn Thằng Đần</h4>
 				</div>
 			</div>
 			<div class="mobile-toggle-menu"><i class='bx bx-menu'></i></div>
@@ -363,7 +363,7 @@
 					role="button" data-bs-toggle="dropdown" aria-expanded="false">
 					<img src="https://dzfullstack.com/assets/images/logo-img.png" class="user-img" alt="user avatar">
 					<div class="user-info ps-3">
-						<p class="user-name mb-0">DZFullStack</p>
+						<p class="user-name mb-0">Nhóm 4</p>
 						<p class="designattion mb-0">Admin</p>
 					</div>
 				</a>
