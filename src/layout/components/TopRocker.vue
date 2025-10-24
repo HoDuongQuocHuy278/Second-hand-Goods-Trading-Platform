@@ -369,7 +369,7 @@
 				</a>
 				<ul class="dropdown-menu dropdown-menu-end">
 					<li>
-						<a class="dropdown-item" href="/"><i class="bx bx-user"></i><span>Profile</span></a>
+						<a class="dropdown-item" href="/profile"><i class="bx bx-user"></i><span>Profile</span></a>
 					</li>
 					<li><a class="dropdown-item" href="javascript:;"><i
 								class='bx bx-log-out-circle'></i><span>Logout</span></a>
