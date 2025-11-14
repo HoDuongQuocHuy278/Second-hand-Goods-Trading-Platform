@@ -1,198 +1,422 @@
 <template>
-  <div class="checkout-page container py-4">
-    <div class="mb-4">
-      <button class="btn btn-link ps-0" type="button" @click="router.back()">
-        ← Quay lại
-      </button>
-    </div>
-
-    <div v-if="errorMessage" class="alert alert-danger d-flex align-items-center justify-content-between">
-      <span>{{ errorMessage }}</span>
-      <button class="btn btn-sm btn-outline-light" type="button" @click="loadProduct">Thử lại</button>
-    </div>
-
-    <div v-if="orderResult" class="row g-4">
-      <div class="col-lg-8">
-        <div class="card shadow-sm border-success-subtle">
-          <div class="card-header bg-success text-white fw-semibold">
-            Đặt hàng thành công
-          </div>
-          <div class="card-body">
-            <p class="text-muted">Mã đơn: <strong>{{ orderResult.ma_don_hang }}</strong></p>
-            <p class="mb-1"><strong>Sản phẩm:</strong> {{ orderResult?.san_pham?.ten_san_pham || product?.name }}</p>
-            <p class="mb-1"><strong>Số lượng:</strong> {{ orderResult.so_luong }}</p>
-            <p class="mb-1"><strong>Tổng tiền:</strong> {{ formatCurrency(orderResult.tong_tien) }}</p>
-            <p class="mb-1"><strong>Phương thức thanh toán:</strong> {{ getPaymentLabel(orderResult.payment_method) }}</p>
-            <p class="text-muted small mt-3">
-              {{ paymentInstruction(orderResult.payment_method) }}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h5 class="fw-semibold">Bước tiếp theo</h5>
-            <ul class="list-unstyled small text-muted mb-3">
-              <li>• Kiểm tra email/SMS xác nhận.</li>
-              <li>• Liên hệ người bán để thống nhất giao hàng.</li>
-              <li>• Theo dõi trạng thái đơn trong mục đơn hàng.</li>
-            </ul>
-            <button class="btn btn-success w-100 mb-2" type="button" @click="router.push('/trang-chu')">
-              Về trang chủ
-            </button>
-            <button class="btn btn-outline-primary w-100" type="button" @click="router.push(`/san-pham/${orderResult.san_pham_id}`)">
-              Xem lại sản phẩm
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div v-else-if="!isLoading && product" class="row g-4">
-      <div class="col-lg-8">
-        <section class="card shadow-sm">
-          <div class="card-header bg-white border-bottom">
-            <h5 class="m-0 fw-semibold">Thông tin người mua</h5>
-          </div>
-          <div class="card-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
-                <input v-model="form.buyer_name" type="text" class="form-control" placeholder="Nguyễn Văn A" required>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Số điện thoại</label>
-                <input v-model="form.buyer_phone" type="tel" class="form-control" placeholder="0123 456 789">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Email</label>
-                <input v-model="form.buyer_email" type="email" class="form-control" placeholder="ban@example.com">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Địa chỉ nhận hàng</label>
-                <input v-model="form.shipping_address" type="text" class="form-control" placeholder="Số nhà, đường, quận/huyện">
-              </div>
-            </div>
-
-            <div class="mt-4">
-              <label class="form-label">Ghi chú cho người bán</label>
-              <textarea v-model="form.notes" class="form-control" rows="3" placeholder="Ví dụ: Giao chiều thứ 7, gọi mình trước 30 phút..."></textarea>
-            </div>
-          </div>
-        </section>
-
-        <section class="card shadow-sm mt-4">
-          <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <h5 class="m-0 fw-semibold">Phương thức thanh toán</h5>
-            <span class="badge bg-success-subtle text-success">Bảo mật 100%</span>
-          </div>
-          <div class="card-body">
-            <div class="payment-grid">
-              <label
-                v-for="option in paymentOptions"
-                :key="option.value"
-                class="payment-card"
-                :class="{ active: form.payment_method === option.value }"
-              >
-                <input
-                  type="radio"
-                  class="form-check-input me-2"
-                  :value="option.value"
-                  v-model="form.payment_method"
-                >
-                <div>
-                  <div class="fw-semibold">{{ option.label }}</div>
-                  <div class="text-muted small">{{ option.desc }}</div>
-                </div>
-                <span class="badge bg-light text-muted ms-auto">{{ option.badge }}</span>
-              </label>
-            </div>
-            <p class="text-muted small mt-3">
-              {{ paymentInstruction(form.payment_method) }}
-            </p>
-          </div>
-        </section>
-      </div>
-
-      <div class="col-lg-4">
-        <section class="card summary-card shadow-sm">
-          <div class="card-header bg-white">
-            <h5 class="fw-semibold m-0">Chi tiết hóa đơn</h5>
-          </div>
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-3 mb-3">
-              <img :src="productImage" alt="product" class="summary-thumb" @error="onImgError">
-              <div>
-                <p class="fw-semibold mb-1">{{ product?.name || 'Đang tải...' }}</p>
-                <p class="text-muted small mb-0">{{ product?.category?.name || product?.category || 'Danh mục khác' }}</p>
-              </div>
-            </div>
-
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <span class="text-muted">Đơn giá</span>
-              <span class="fw-semibold">{{ formatCurrency(product?.price || 0) }}</span>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label small text-muted">Số lượng</label>
-              <div class="quantity-control">
-                <button class="btn btn-sm btn-light" type="button" @click="changeQuantity(-1)" :disabled="form.quantity <= 1">−</button>
-                <input type="number" min="1" max="99" v-model.number="form.quantity" @input="clampQuantity">
-                <button class="btn btn-sm btn-light" type="button" @click="changeQuantity(1)">＋</button>
-              </div>
-            </div>
-
-            <hr>
-
-            <div class="d-flex justify-content-between mb-2">
-              <span>Tạm tính</span>
-              <span>{{ formatCurrency(totalAmount) }}</span>
-            </div>
-            <div class="d-flex justify-content-between mb-2">
-              <span>Phí vận chuyển</span>
-              <span>Miễn phí</span>
-            </div>
-            <div class="d-flex justify-content-between fw-semibold fs-5 mt-3">
-              <span>Tổng tiền</span>
-              <span>{{ formatCurrency(totalAmount) }}</span>
-            </div>
-
-            <button
-              class="btn btn-success w-100 mt-4"
-              type="button"
-              :disabled="submitting || !product"
-              @click="submitOrder"
-            >
-              <span v-if="submitting" class="spinner-border spinner-border-sm me-2"></span>
-              Xác nhận &amp; thanh toán
-            </button>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <div v-else-if="isLoading" class="d-flex justify-content-center align-items-center py-5">
-      <div class="text-center">
-        <div class="spinner-border text-success mb-3" role="status">
+  <div class="checkout-page">
+    <!-- Loading State -->
+    <div v-if="isLoading" class="loading-container">
+      <div class="text-center py-5">
+        <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
           <span class="visually-hidden">Đang tải...</span>
         </div>
         <p class="text-muted">Đang tải thông tin sản phẩm...</p>
-        <p class="text-muted small">Product ID: {{ productId }}</p>
       </div>
     </div>
 
-    <div v-else-if="!productId && !isLoading" class="alert alert-warning">
-      <h5>Không tìm thấy sản phẩm</h5>
-      <p>Vui lòng chọn sản phẩm để tiếp tục thanh toán.</p>
-      <router-link to="/danh-sach-san-pham" class="btn btn-primary">Xem sản phẩm</router-link>
+    <!-- Error State -->
+    <div v-else-if="errorMessage && !product" class="error-container">
+      <div class="container py-5">
+        <div class="alert alert-danger">
+          <h5>Không thể tải thông tin sản phẩm</h5>
+          <p>{{ errorMessage }}</p>
+          <button class="btn btn-primary" type="button" @click="loadProduct">Thử lại</button>
+          <router-link to="/danh-sach-san-pham" class="btn btn-outline-secondary ms-2">Xem sản phẩm khác</router-link>
+        </div>
+      </div>
     </div>
 
-    <div v-else-if="!product && !isLoading && productId" class="alert alert-danger">
-      <h5>Không thể tải thông tin sản phẩm</h5>
-      <p>{{ errorMessage || 'Có lỗi xảy ra khi tải thông tin sản phẩm.' }}</p>
-      <button class="btn btn-primary" type="button" @click="loadProduct">Thử lại</button>
-      <router-link to="/danh-sach-san-pham" class="btn btn-outline-secondary ms-2">Xem sản phẩm khác</router-link>
+    <!-- Order Success State -->
+    <div v-else-if="orderResult" class="order-success-container">
+      <div class="container py-5">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="success-card text-center">
+              <div class="success-icon">
+                <i class='bx bx-check-circle'></i>
+              </div>
+              <h2 class="success-title">Đặt hàng thành công!</h2>
+              <p class="success-message">Cảm ơn bạn đã mua sắm tại Chợ Đồ Cũ</p>
+              
+              <div class="order-details-card">
+                <div class="order-header">
+                  <h5>Thông tin đơn hàng</h5>
+                  <span class="order-code">Mã đơn: <strong>{{ orderResult.ma_don_hang }}</strong></span>
+                </div>
+                <div class="order-body">
+                  <div class="order-item">
+                    <div class="order-item-image">
+                      <img :src="orderProductImage" :alt="orderResult?.san_pham?.ten_san_pham || product?.name" @error="onImgError">
+                    </div>
+                    <div class="order-item-info">
+                      <h6>{{ orderResult?.san_pham?.ten_san_pham || product?.name }}</h6>
+                      <p class="text-muted small">Số lượng: {{ orderResult.so_luong }}</p>
+                    </div>
+                    <div class="order-item-price">
+                      <strong>{{ formatCurrency(orderResult.tong_tien) }}</strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="order-footer">
+                  <div class="order-summary">
+                    <div class="summary-row">
+                      <span>Tạm tính:</span>
+                      <span>{{ formatCurrency(orderResult.tong_tien) }}</span>
+                    </div>
+                    <div class="summary-row">
+                      <span>Phí vận chuyển:</span>
+                      <span>Miễn phí</span>
+                    </div>
+                    <div class="summary-row total">
+                      <span>Tổng tiền:</span>
+                      <span>{{ formatCurrency(orderResult.tong_tien) }}</span>
+                    </div>
+                  </div>
+                  <div class="payment-info">
+                    <p><strong>Phương thức thanh toán:</strong> {{ getPaymentLabel(orderResult.payment_method) }}</p>
+                    <p class="text-muted small">{{ paymentInstruction(orderResult.payment_method) }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="success-actions">
+                <button class="btn btn-success btn-lg" type="button" @click="router.push('/trang-chu')">
+                  <i class='bx bx-home'></i> Về trang chủ
+                </button>
+                <button class="btn btn-outline-primary btn-lg" type="button" @click="router.push(`/san-pham/${orderResult.san_pham_id || productId}`)">
+                  <i class='bx bx-show'></i> Xem lại sản phẩm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Form -->
+    <div v-else-if="product" class="checkout-form-container">
+      <div class="container py-4">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-nav mb-4">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <router-link to="/trang-chu">Trang chủ</router-link>
+            </li>
+            <li class="breadcrumb-item">
+              <router-link to="/danh-sach-san-pham">Sản phẩm</router-link>
+            </li>
+            <li class="breadcrumb-item active">Thanh toán</li>
+          </ol>
+        </nav>
+
+        <!-- Progress Steps -->
+        <div class="checkout-steps mb-4">
+          <div class="step" :class="{ active: currentStep >= 1, completed: currentStep > 1 }">
+            <div class="step-number">1</div>
+            <div class="step-label">Thông tin đơn hàng</div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step" :class="{ active: currentStep >= 2, completed: currentStep > 2 }">
+            <div class="step-number">2</div>
+            <div class="step-label">Phương thức thanh toán</div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step" :class="{ active: currentStep >= 3, completed: currentStep > 3 }">
+            <div class="step-number">3</div>
+            <div class="step-label">Xác nhận</div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Left Column: Form -->
+          <div class="col-lg-8">
+            <!-- Step 1: Order Information -->
+            <div v-show="currentStep === 1" class="checkout-step">
+              <div class="card shadow-sm">
+                <div class="card-header">
+                  <h5 class="mb-0">
+                    <i class='bx bx-package'></i> Thông tin đơn hàng
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <!-- Product Info -->
+                  <div class="product-summary mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                      <img :src="productImage" :alt="product.name" class="product-thumb" @error="onImgError">
+                      <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ product.name }}</h6>
+                        <p class="text-muted small mb-2">{{ product.category?.name || product.category || 'Danh mục khác' }}</p>
+                        <div class="d-flex align-items-center gap-3">
+                          <span class="text-success fw-bold">{{ formatCurrency(product.price) }}</span>
+                          <div class="quantity-selector">
+                            <button class="btn btn-sm btn-light" type="button" @click="changeQuantity(-1)" :disabled="form.quantity <= 1">−</button>
+                            <input type="number" min="1" max="99" v-model.number="form.quantity" @input="clampQuantity" class="quantity-input">
+                            <button class="btn btn-sm btn-light" type="button" @click="changeQuantity(1)">＋</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        <p class="text-muted small mb-1">Tổng tiền</p>
+                        <h5 class="text-success mb-0">{{ formatCurrency(totalAmount) }}</h5>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr>
+
+                  <!-- Buyer Information -->
+                  <h6 class="mb-3">
+                    <i class='bx bx-user'></i> Thông tin người mua
+                  </h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                      <input 
+                        v-model="form.buyer_name" 
+                        type="text" 
+                        class="form-control" 
+                        placeholder="Nguyễn Văn A" 
+                        required
+                        :class="{ 'is-invalid': errors.buyer_name }"
+                      >
+                      <div v-if="errors.buyer_name" class="invalid-feedback">{{ errors.buyer_name }}</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                      <input 
+                        v-model="form.buyer_phone" 
+                        type="tel" 
+                        class="form-control" 
+                        placeholder="0123 456 789"
+                        :class="{ 'is-invalid': errors.buyer_phone }"
+                      >
+                      <div v-if="errors.buyer_phone" class="invalid-feedback">{{ errors.buyer_phone }}</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Email</label>
+                      <input 
+                        v-model="form.buyer_email" 
+                        type="email" 
+                        class="form-control" 
+                        placeholder="example@email.com"
+                        :class="{ 'is-invalid': errors.buyer_email }"
+                      >
+                      <div v-if="errors.buyer_email" class="invalid-feedback">{{ errors.buyer_email }}</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Địa chỉ nhận hàng</label>
+                      <input 
+                        v-model="form.shipping_address" 
+                        type="text" 
+                        class="form-control" 
+                        placeholder="Số nhà, đường, quận/huyện, thành phố"
+                      >
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Ghi chú cho người bán</label>
+                      <textarea 
+                        v-model="form.notes" 
+                        class="form-control" 
+                        rows="3" 
+                        placeholder="Ví dụ: Giao chiều thứ 7, gọi mình trước 30 phút..."
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Payment Method -->
+            <div v-show="currentStep === 2" class="checkout-step">
+              <div class="card shadow-sm">
+                <div class="card-header">
+                  <h5 class="mb-0">
+                    <i class='bx bx-credit-card'></i> Phương thức thanh toán
+                    <span class="badge bg-success-subtle text-success ms-2">Bảo mật 100%</span>
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="payment-options">
+                    <label
+                      v-for="option in paymentOptions"
+                      :key="option.value"
+                      class="payment-option-card"
+                      :class="{ active: form.payment_method === option.value }"
+                      @click="form.payment_method = option.value"
+                    >
+                      <input
+                        type="radio"
+                        :value="option.value"
+                        v-model="form.payment_method"
+                        class="form-check-input"
+                      >
+                      <div class="payment-option-icon" :class="`icon-${option.value}`">
+                        <i :class="option.icon"></i>
+                      </div>
+                      <div class="payment-option-content">
+                        <div class="payment-option-title">{{ option.label }}</div>
+                        <div class="payment-option-desc">{{ option.desc }}</div>
+                      </div>
+                      <span class="payment-option-badge" v-if="option.badge">{{ option.badge }}</span>
+                    </label>
+                  </div>
+                  <div class="payment-instruction mt-4 p-3 bg-light rounded">
+                    <i class='bx bx-info-circle text-primary'></i>
+                    <span class="ms-2">{{ paymentInstruction(form.payment_method) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Confirmation -->
+            <div v-show="currentStep === 3" class="checkout-step">
+              <div class="card shadow-sm">
+                <div class="card-header">
+                  <h5 class="mb-0">
+                    <i class='bx bx-check-circle'></i> Xác nhận đơn hàng
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="order-review">
+                    <div class="review-section">
+                      <h6>Thông tin sản phẩm</h6>
+                      <div class="d-flex align-items-center gap-3 mb-3">
+                        <img :src="productImage" :alt="product.name" class="review-thumb" @error="onImgError">
+                        <div class="flex-grow-1">
+                          <h6 class="mb-1">{{ product.name }}</h6>
+                          <p class="text-muted small mb-0">Số lượng: {{ form.quantity }} x {{ formatCurrency(product.price) }}</p>
+                        </div>
+                        <div class="text-end">
+                          <strong class="text-success">{{ formatCurrency(totalAmount) }}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="review-section">
+                      <h6>Thông tin người mua</h6>
+                      <div class="review-info">
+                        <p><strong>Họ tên:</strong> {{ form.buyer_name }}</p>
+                        <p v-if="form.buyer_phone"><strong>Số điện thoại:</strong> {{ form.buyer_phone }}</p>
+                        <p v-if="form.buyer_email"><strong>Email:</strong> {{ form.buyer_email }}</p>
+                        <p v-if="form.shipping_address"><strong>Địa chỉ:</strong> {{ form.shipping_address }}</p>
+                        <p v-if="form.notes"><strong>Ghi chú:</strong> {{ form.notes }}</p>
+                      </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="review-section">
+                      <h6>Phương thức thanh toán</h6>
+                      <div class="d-flex align-items-center gap-2">
+                        <i :class="getPaymentIcon(form.payment_method)"></i>
+                        <span>{{ getPaymentLabel(form.payment_method) }}</span>
+                      </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="review-section">
+                      <div class="order-total">
+                        <div class="total-row">
+                          <span>Tạm tính:</span>
+                          <span>{{ formatCurrency(totalAmount) }}</span>
+                        </div>
+                        <div class="total-row">
+                          <span>Phí vận chuyển:</span>
+                          <span>Miễn phí</span>
+                        </div>
+                        <div class="total-row final">
+                          <span>Tổng tiền:</span>
+                          <span>{{ formatCurrency(totalAmount) }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Order Summary -->
+          <div class="col-lg-4">
+            <div class="order-summary-card sticky-top">
+              <div class="card shadow-sm">
+                <div class="card-header">
+                  <h5 class="mb-0">Tóm tắt đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                  <div class="summary-item">
+                    <img :src="productImage" :alt="product.name" class="summary-thumb" @error="onImgError">
+                    <div class="summary-item-info">
+                      <p class="summary-item-name">{{ product.name }}</p>
+                      <p class="text-muted small">Số lượng: {{ form.quantity }}</p>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="summary-totals">
+                    <div class="summary-row">
+                      <span>Đơn giá:</span>
+                      <span>{{ formatCurrency(product.price) }}</span>
+                    </div>
+                    <div class="summary-row">
+                      <span>Số lượng:</span>
+                      <span>{{ form.quantity }}</span>
+                    </div>
+                    <div class="summary-row">
+                      <span>Phí vận chuyển:</span>
+                      <span class="text-success">Miễn phí</span>
+                    </div>
+                    <hr>
+                    <div class="summary-row total">
+                      <span>Tổng tiền:</span>
+                      <span class="total-amount">{{ formatCurrency(totalAmount) }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <button
+                    v-if="currentStep === 1"
+                    class="btn btn-primary w-100"
+                    type="button"
+                    @click="nextStep"
+                    :disabled="!canProceedToStep2"
+                  >
+                    Tiếp tục <i class='bx bx-chevron-right'></i>
+                  </button>
+                  <button
+                    v-else-if="currentStep === 2"
+                    class="btn btn-primary w-100"
+                    type="button"
+                    @click="nextStep"
+                  >
+                    Tiếp tục <i class='bx bx-chevron-right'></i>
+                  </button>
+                  <button
+                    v-else-if="currentStep === 3"
+                    class="btn btn-success w-100 btn-lg"
+                    type="button"
+                    @click="submitOrder"
+                    :disabled="submitting"
+                  >
+                    <span v-if="submitting" class="spinner-border spinner-border-sm me-2"></span>
+                    <span v-else><i class='bx bx-check'></i> Xác nhận đặt hàng</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Navigation Buttons -->
+              <div class="step-navigation mt-3">
+                <button
+                  v-if="currentStep > 1"
+                  class="btn btn-outline-secondary w-100"
+                  type="button"
+                  @click="prevStep"
+                >
+                  <i class='bx bx-chevron-left'></i> Quay lại
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -208,10 +432,11 @@ const router = useRouter()
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/client'
 
 const product = ref(null)
-const isLoading = ref(true) // Bắt đầu với true để hiển thị loading
+const isLoading = ref(true)
 const errorMessage = ref('')
 const orderResult = ref(null)
 const submitting = ref(false)
+const currentStep = ref(1)
 
 const form = reactive({
   buyer_name: '',
@@ -223,10 +448,34 @@ const form = reactive({
   payment_method: 'vnpay'
 })
 
+const errors = reactive({
+  buyer_name: '',
+  buyer_email: '',
+  buyer_phone: ''
+})
+
 const paymentOptions = [
-  { value: 'vnpay', label: 'Ví VNPAY', desc: 'Thanh toán online qua QR hoặc thẻ liên kết.', badge: 'Khuyến nghị' },
-  { value: 'momo', label: 'Ví MoMo', desc: 'Quét mã hoặc thanh toán trên app MoMo.', badge: 'Phổ biến' },
-  { value: 'cash', label: 'Tiền mặt (COD)', desc: 'Thanh toán khi nhận hàng.', badge: 'Tiện lợi' }
+  { 
+    value: 'vnpay', 
+    label: 'Ví VNPAY', 
+    desc: 'Thanh toán online qua QR hoặc thẻ liên kết',
+    icon: 'bx bx-credit-card',
+    badge: 'Khuyến nghị'
+  },
+  { 
+    value: 'momo', 
+    label: 'Ví MoMo', 
+    desc: 'Quét mã hoặc thanh toán trên app MoMo',
+    icon: 'bx bx-mobile',
+    badge: 'Phổ biến'
+  },
+  { 
+    value: 'cash', 
+    label: 'Tiền mặt (COD)', 
+    desc: 'Thanh toán khi nhận hàng',
+    icon: 'bx bx-money',
+    badge: 'Tiện lợi'
+  }
 ]
 
 const productId = computed(() => route.query.product_id || route.query.product || null)
@@ -246,9 +495,21 @@ const productImage = computed(() => {
   return 'https://via.placeholder.com/160x120?text=No+Image'
 })
 
+const orderProductImage = computed(() => {
+  if (orderResult.value?.san_pham?.hinh_anh) {
+    const images = Array.isArray(orderResult.value.san_pham.hinh_anh) 
+      ? orderResult.value.san_pham.hinh_anh 
+      : JSON.parse(orderResult.value.san_pham.hinh_anh || '[]')
+    return images[0] || productImage.value
+  }
+  return productImage.value
+})
+
+const canProceedToStep2 = computed(() => {
+  return form.buyer_name.trim() && form.buyer_phone.trim()
+})
+
 const loadProduct = async () => {
-  console.log('Loading product, productId:', productId.value)
-  
   if (!productId.value) {
     errorMessage.value = 'Không tìm thấy sản phẩm để mua. Vui lòng chọn sản phẩm từ danh sách.'
     product.value = null
@@ -259,18 +520,14 @@ const loadProduct = async () => {
   isLoading.value = true
   errorMessage.value = ''
   orderResult.value = null
+  currentStep.value = 1
   
   try {
-    console.log('Fetching product from:', `${API_BASE_URL}/san-pham/${productId.value}`)
     const response = await axios.get(`${API_BASE_URL}/san-pham/${productId.value}`)
-    console.log('API Response:', response.data)
-    
-    // Backend trả về format: { status: true, data: {...} }
     const payload = response.data?.data || response.data
     
     if (payload && payload.id) {
       product.value = payload
-      console.log('Product loaded:', product.value)
       
       // Auto-fill thông tin người mua từ localStorage nếu có
       const userInfo = localStorage.getItem('user_info')
@@ -285,18 +542,62 @@ const loadProduct = async () => {
         }
       }
     } else {
-      console.error('Invalid payload:', payload)
       errorMessage.value = 'Không tìm thấy thông tin sản phẩm. Dữ liệu trả về không hợp lệ.'
       product.value = null
     }
   } catch (err) {
     console.error('Error loading product:', err)
-    console.error('Error details:', err.response)
     errorMessage.value = err?.response?.data?.message || err?.message || 'Không thể tải thông tin sản phẩm. Vui lòng thử lại.'
     product.value = null
   } finally {
     isLoading.value = false
-    console.log('Loading complete. isLoading:', isLoading.value, 'product:', product.value)
+  }
+}
+
+const validateStep1 = () => {
+  errors.buyer_name = ''
+  errors.buyer_phone = ''
+  errors.buyer_email = ''
+  
+  if (!form.buyer_name.trim()) {
+    errors.buyer_name = 'Vui lòng nhập họ tên'
+    return false
+  }
+  
+  if (!form.buyer_phone.trim()) {
+    errors.buyer_phone = 'Vui lòng nhập số điện thoại'
+    return false
+  }
+  
+  if (form.buyer_phone && !/^[0-9]{10,11}$/.test(form.buyer_phone.replace(/\s/g, ''))) {
+    errors.buyer_phone = 'Số điện thoại không hợp lệ'
+    return false
+  }
+  
+  if (form.buyer_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.buyer_email)) {
+    errors.buyer_email = 'Email không hợp lệ'
+    return false
+  }
+  
+  return true
+}
+
+const nextStep = () => {
+  if (currentStep.value === 1) {
+    if (validateStep1()) {
+      currentStep.value = 2
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  } else if (currentStep.value === 2) {
+    currentStep.value = 3
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const prevStep = () => {
+  if (currentStep.value > 1) {
+    currentStep.value--
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 
@@ -309,11 +610,11 @@ const clampQuantity = () => {
 }
 
 const submitOrder = async () => {
-  clampQuantity()
-  if (!form.buyer_name.trim()) {
-    errorMessage.value = 'Vui lòng nhập họ tên người nhận.'
+  if (!validateStep1()) {
+    currentStep.value = 1
     return
   }
+  
   if (!product.value) {
     errorMessage.value = 'Không tìm thấy sản phẩm.'
     return
@@ -321,6 +622,7 @@ const submitOrder = async () => {
 
   submitting.value = true
   errorMessage.value = ''
+  
   try {
     const payload = {
       product_id: product.value.id,
@@ -335,9 +637,14 @@ const submitOrder = async () => {
 
     const { data } = await axios.post(`${API_BASE_URL}/don-hang`, payload)
     orderResult.value = data?.data || data
+    
+    // Scroll to top to show success message
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (err) {
     console.error(err)
-    errorMessage.value = err?.response?.data?.message || 'Không thể tạo đơn hàng.'
+    errorMessage.value = err?.response?.data?.message || 'Không thể tạo đơn hàng. Vui lòng thử lại.'
+    // Show error and go back to step 1
+    currentStep.value = 1
   } finally {
     submitting.value = false
   }
@@ -358,20 +665,31 @@ const getPaymentLabel = (method) => {
   return paymentOptions.find((item) => item.value === method)?.label || method
 }
 
+const getPaymentIcon = (method) => {
+  return paymentOptions.find((item) => item.value === method)?.icon || 'bx bx-credit-card'
+}
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND'
+  }).format(amount || 0)
+}
+
 const onImgError = (event) => {
   event.target.src = 'https://via.placeholder.com/160x120?text=No+Image'
 }
 
 watch(() => route.query.product_id, (newId, oldId) => {
   if (newId !== oldId) {
-    console.log('Product ID changed:', oldId, '->', newId)
     form.quantity = Number(route.query.quantity || 1) || 1
     clampQuantity()
     orderResult.value = null
     product.value = null
+    currentStep.value = 1
     loadProduct()
   }
-}, { immediate: false })
+})
 
 watch(() => route.query.quantity, (newQty) => {
   if (newQty) {
@@ -381,16 +699,10 @@ watch(() => route.query.quantity, (newQty) => {
 })
 
 onMounted(() => {
-  console.log('Checkout component mounted')
-  console.log('Route query:', route.query)
-  console.log('Product ID:', productId.value)
-  
-  // Đảm bảo quantity được set từ query
   if (route.query.quantity) {
     form.quantity = Number(route.query.quantity) || 1
     clampQuantity()
   }
-  
   loadProduct()
 })
 </script>
@@ -398,54 +710,442 @@ onMounted(() => {
 <style scoped>
 .checkout-page {
   min-height: 70vh;
+  background: #f9fafb;
 }
-.payment-grid {
+
+.loading-container,
+.error-container {
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Breadcrumb */
+.breadcrumb-nav {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.breadcrumb {
+  margin: 0;
+  padding: 0;
+}
+
+/* Checkout Steps */
+.checkout-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.step {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  max-width: 200px;
 }
-.payment-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 16px;
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #6b7280;
   display: flex;
-  gap: 12px;
   align-items: center;
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  justify-content: center;
+  font-weight: 600;
+  transition: all 0.3s;
 }
-.payment-card input {
-  margin-top: 0;
+
+.step.active .step-number {
+  background: #16a34a;
+  color: white;
 }
-.payment-card.active {
-  border-color: #16a34a;
-  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.15);
+
+.step.completed .step-number {
+  background: #22c55e;
+  color: white;
 }
-.summary-card {
-  position: sticky;
-  top: 80px;
+
+.step.completed .step-number::before {
+  content: '✓';
 }
-.summary-thumb {
-  width: 72px;
-  height: 72px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-.quantity-control {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 999px;
-  padding: 4px 10px;
-  gap: 8px;
-  background: #f8fafc;
-}
-.quantity-control input {
-  width: 48px;
-  border: none;
-  background: transparent;
+
+.step-label {
+  font-size: 14px;
+  color: #6b7280;
   text-align: center;
+}
+
+.step.active .step-label {
+  color: #16a34a;
   font-weight: 600;
 }
-</style>
 
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 0 1rem;
+}
+
+/* Product Summary */
+.product-summary {
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.product-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.quantity-selector button {
+  border: none;
+  background: white;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.quantity-selector button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantity-input {
+  width: 50px;
+  border: none;
+  text-align: center;
+  padding: 4px;
+}
+
+/* Payment Options */
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.payment-option-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: white;
+}
+
+.payment-option-card:hover {
+  border-color: #16a34a;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1);
+}
+
+.payment-option-card.active {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+}
+
+.payment-option-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+
+.icon-vnpay {
+  background: linear-gradient(135deg, #0052a5, #007bff);
+}
+
+.icon-momo {
+  background: linear-gradient(135deg, #a50064, #d91a72);
+}
+
+.icon-cash {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+
+.payment-option-content {
+  flex: 1;
+}
+
+.payment-option-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.payment-option-desc {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.payment-option-badge {
+  padding: 4px 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.payment-option-card.active .payment-option-badge {
+  background: #16a34a;
+  color: white;
+}
+
+/* Order Summary Card */
+.order-summary-card {
+  top: 100px;
+}
+
+.summary-item {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.summary-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.summary-item-info {
+  flex: 1;
+}
+
+.summary-item-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.summary-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.summary-row.total {
+  font-size: 18px;
+  font-weight: 700;
+  color: #16a34a;
+  padding-top: 0.5rem;
+  border-top: 2px solid #e5e7eb;
+  margin-top: 0.5rem;
+}
+
+.total-amount {
+  color: #16a34a;
+  font-size: 20px;
+}
+
+/* Order Review */
+.review-section {
+  margin-bottom: 1.5rem;
+}
+
+.review-section h6 {
+  margin-bottom: 1rem;
+  color: #374151;
+}
+
+.review-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.review-info p {
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+}
+
+.order-total {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+}
+
+.total-row.final {
+  font-size: 18px;
+  font-weight: 700;
+  color: #16a34a;
+  padding-top: 0.5rem;
+  border-top: 2px solid #e5e7eb;
+  margin-top: 0.5rem;
+}
+
+/* Order Success */
+.order-success-container {
+  min-height: 70vh;
+  background: #f9fafb;
+  padding: 2rem 0;
+}
+
+.success-card {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.success-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 60px;
+}
+
+.success-title {
+  color: #16a34a;
+  margin-bottom: 0.5rem;
+}
+
+.success-message {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.order-details-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.order-code {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.order-item {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.order-item-image img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.order-item-info {
+  flex: 1;
+}
+
+.order-item-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.order-summary {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.payment-info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.success-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.success-actions button {
+  min-width: 200px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .checkout-steps {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .step-connector {
+    width: 2px;
+    height: 30px;
+    margin: 0;
+  }
+  
+  .success-actions {
+    flex-direction: column;
+  }
+  
+  .success-actions button {
+    width: 100%;
+  }
+  
+  .order-summary-card {
+    position: relative !important;
+    top: 0 !important;
+  }
+}
+</style>

@@ -204,6 +204,8 @@ function saveCart() {
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items.value))
     updateSummary()
+    // Dispatch event to update cart count in header
+    window.dispatchEvent(new CustomEvent('cart-updated'))
   } catch (err) {
     console.error('Không thể lưu giỏ hàng', err)
     errorMessage.value = 'Không thể lưu giỏ hàng.'

@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper">
-		<div class="header-wrapper">
+		<div class="header-wrapper-sticky">
             <TopRocker></TopRocker>
             <MenuRocker></MenuRocker>
 		</div>
@@ -47,4 +47,33 @@ export default {
 @import "../../assets/css/semi-dark.css";
 @import "../../assets/css/header-colors.css";
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css");
+
+/* Header wrapper sticky - keeps TopRocker and MenuRocker together */
+.header-wrapper-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 100%;
+}
+
+/* Ensure TopRocker and MenuRocker are connected */
+.header-wrapper-sticky > * {
+  width: 100%;
+}
+
+/* Ensure page content has proper margin */
+.page-wrapper {
+  min-height: calc(100vh - 200px);
+  background: #f9fafb;
+}
+
+.page-content {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #ffffff;
+  min-height: calc(100vh - 200px);
+}
 </style>

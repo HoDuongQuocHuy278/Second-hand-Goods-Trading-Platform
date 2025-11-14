@@ -1,387 +1,1111 @@
 <template>
+  <div class="topbar-modern">
+    <nav class="navbar-modern">
+      <!-- Logo & Brand -->
+      <div class="navbar-brand-modern">
+        <router-link to="/trang-chu" class="brand-link">
+          <div class="brand-logo">
+            <img src="../../assets/images/logo-icon.png" class="logo-icon" alt="Chợ Đồ Cũ" @error="onLogoError">
+          </div>
+          <div class="brand-text">
+            <h4 class="brand-title">Chợ Đồ Cũ</h4>
+            <p class="brand-subtitle">Mua bán đồ cũ uy tín</p>
+          </div>
+        </router-link>
+      </div>
 
-	<div class="topbar d-flex align-items-center">
-		<nav class="navbar navbar-expand">
-			<div class="topbar-logo-header">
-				<div class="">
-					<img src="../../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
-				</div>
-				<div class="">
-					<h4 class="logo-text">Bốn Thằng Đần</h4>
-				</div>
-			</div>
-			<div class="mobile-toggle-menu"><i class='bx bx-menu'></i></div>
-			<div class="search-bar flex-grow-1">
-				<div class="position-relative search-bar-box">
-					<input type="text" class="form-control search-control" placeholder="Tìm Kiếm?">
-					<span class="position-absolute top-50 search-show translate-middle-y"><i
-							class='bx bx-search'></i></span>
-					<span class="position-absolute top-50 search-close translate-middle-y"><i
-							class='bx bx-x'></i></span>
-				</div>
-			</div>
-			<div class="top-menu ms-auto">
-				<ul class="navbar-nav align-items-center">
-					<li class="nav-item mobile-search-icon">
-						<a class="nav-link" href="#"> <i class='bx bx-search'></i>
-						</a>
-					</li>
-					<li class="nav-item dropdown dropdown-large">
-						<a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button"
-							data-bs-toggle="dropdown" aria-expanded="false"> <i class='bx bx-category'></i>
-						</a>
-						<div class="dropdown-menu dropdown-menu-end">
-							<div class="row row-cols-3 g-3 p-3">
-								<div class="col text-center">
-									<div class="app-box mx-auto bg-gradient-cosmic text-white"><i
-											class='bx bx-group'></i>
-									</div>
-									<div class="app-title">Teams</div>
-								</div>
-								<div class="col text-center">
-									<div class="app-box mx-auto bg-gradient-burning text-white"><i
-											class='bx bx-atom'></i>
-									</div>
-									<div class="app-title">Projects</div>
-								</div>
-								<div class="col text-center">
-									<div class="app-box mx-auto bg-gradient-lush text-white"><i
-											class='bx bx-shield'></i>
-									</div>
-									<div class="app-title">Tasks</div>
-								</div>
-								<div class="col text-center">
-									<div class="app-box mx-auto bg-gradient-kyoto text-dark"><i
-											class='bx bx-notification'></i>
-									</div>
-									<div class="app-title">Feeds</div>
-								</div>
-								<div class="col text-center">
-									<div class="app-box mx-auto bg-gradient-blues text-dark"><i class='bx bx-file'></i>
-									</div>
-									<div class="app-title">Files</div>
-								</div>
-								<div class="col text-center">
-									<div class="app-box mx-auto bg-gradient-moonlit text-white"><i
-											class='bx bx-filter-alt'></i>
-									</div>
-									<div class="app-title">Alerts</div>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li class="nav-item dropdown dropdown-large">
-						<a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
-							role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
-								class="alert-count">7</span>
-							<i class='bx bx-bell'></i>
-						</a>
-						<div class="dropdown-menu dropdown-menu-end">
-							<a href="javascript:;">
-								<div class="msg-header">
-									<p class="msg-header-title">Notifications</p>
-									<p class="msg-header-clear ms-auto">Marks all as read</p>
-								</div>
-							</a>
-							<div class="header-notifications-list">
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-primary text-primary"><i class="bx bx-group"></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">New Customers<span class="msg-time float-end">14 Sec
-													ago</span></h6>
-											<p class="msg-info">5 new user registered</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-danger text-danger"><i class="bx bx-cart-alt"></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">New Orders <span class="msg-time float-end">2 min
-													ago</span></h6>
-											<p class="msg-info">You have recived new orders</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-success text-success"><i class="bx bx-file"></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">24 PDF File<span class="msg-time float-end">19 min
-													ago</span></h6>
-											<p class="msg-info">The pdf files generated</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-warning text-warning"><i class="bx bx-send"></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Time Response <span class="msg-time float-end">28 min
-													ago</span></h6>
-											<p class="msg-info">5.1 min avarage time response</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-info text-info"><i class="bx bx-home-circle"></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">New Product Approved <span class="msg-time float-end">2
-													hrs ago</span></h6>
-											<p class="msg-info">Your new product has approved</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-danger text-danger"><i
-												class="bx bx-message-detail"></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">New Comments <span class="msg-time float-end">4 hrs
-													ago</span></h6>
-											<p class="msg-info">New customer comments recived</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-success text-success"><i
-												class='bx bx-check-square'></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Your item is shipped <span class="msg-time float-end">5
-													hrs
-													ago</span></h6>
-											<p class="msg-info">Successfully shipped your item</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-primary text-primary"><i class='bx bx-user-pin'></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">New 24 authors<span class="msg-time float-end">1 day
-													ago</span></h6>
-											<p class="msg-info">24 new authors joined last week</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="notify bg-light-warning text-warning"><i
-												class='bx bx-door-open'></i>
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Defense Alerts <span class="msg-time float-end">2 weeks
-													ago</span></h6>
-											<p class="msg-info">45% less alerts last 4 weeks</p>
-										</div>
-									</div>
-								</a>
-							</div>
-							<a href="javascript:;">
-								<div class="text-center msg-footer">View All Notifications</div>
-							</a>
-						</div>
-					</li>
-					<li class="nav-item dropdown dropdown-large">
-						<a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
-							role="button" data-bs-toggle="dropdown" aria-expanded="false"> <span
-								class="alert-count">8</span>
-							<i class='bx bx-comment'></i>
-						</a>
-						<div class="dropdown-menu dropdown-menu-end">
-							<a href="javascript:;">
-								<div class="msg-header">
-									<p class="msg-header-title">Messages</p>
-									<p class="msg-header-clear ms-auto">Marks all as read</p>
-								</div>
-							</a>
-							<div class="header-message-list">
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-1.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Daisy Anderson <span class="msg-time float-end">5 sec
-													ago</span></h6>
-											<p class="msg-info">The standard chunk of lorem</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-2.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Althea Cabardo <span class="msg-time float-end">14
-													sec ago</span></h6>
-											<p class="msg-info">Many desktop publishing packages</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-3.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Oscar Garner <span class="msg-time float-end">8 min
-													ago</span></h6>
-											<p class="msg-info">Various versions have evolved over</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-4.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Katherine Pechon <span class="msg-time float-end">15
-													min ago</span></h6>
-											<p class="msg-info">Making this the first true generator</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-5.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Amelia Doe <span class="msg-time float-end">22 min
-													ago</span></h6>
-											<p class="msg-info">Duis aute irure dolor in reprehenderit</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-6.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Cristina Jhons <span class="msg-time float-end">2 hrs
-													ago</span></h6>
-											<p class="msg-info">The passage is attributed to an unknown</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-7.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">James Caviness <span class="msg-time float-end">4 hrs
-													ago</span></h6>
-											<p class="msg-info">The point of using Lorem</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-8.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Peter Costanzo <span class="msg-time float-end">6 hrs
-													ago</span></h6>
-											<p class="msg-info">It was popularised in the 1960s</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-9.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">David Buckley <span class="msg-time float-end">2 hrs
-													ago</span></h6>
-											<p class="msg-info">Various versions have evolved over</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-10.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Thomas Wheeler <span class="msg-time float-end">2 days
-													ago</span></h6>
-											<p class="msg-info">If you are going to use a passage</p>
-										</div>
-									</div>
-								</a>
-								<a class="dropdown-item" href="javascript:;">
-									<div class="d-flex align-items-center">
-										<div class="user-online">
-											<img src="assets/images/avatars/avatar-11.png" class="msg-avatar"
-												alt="user avatar">
-										</div>
-										<div class="flex-grow-1">
-											<h6 class="msg-name">Johnny Seitz <span class="msg-time float-end">5 days
-													ago</span></h6>
-											<p class="msg-info">All the Lorem Ipsum generators</p>
-										</div>
-									</div>
-								</a>
-							</div>
-							<a href="javascript:;">
-								<div class="text-center msg-footer">View All Messages</div>
-							</a>
-						</div>
-					</li>
-				</ul>
-			</div>
-			<div class="user-box dropdown">
-				<a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#"
-					role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<img src="/src/assets/img/3.jpg" class="user-img" alt="user avatar">
-					<div class="user-info ps-3">
-						<p class="user-name mb-0">Nhóm 4</p>
-						<p class="designattion mb-0">Admin</p>
-					</div>
-				</a>
-				<ul class="dropdown-menu dropdown-menu-end">
-					<li>
-						<a class="dropdown-item" href="/profile"><i class="bx bx-user"></i><span>Profile</span></a>
-					</li>
-					<li><a class="dropdown-item" href="javascript:;"><i
-								class='bx bx-log-out-circle'></i><span>Logout</span></a>
-					</li>
-				</ul>
-			</div>
-		</nav>
-	</div>
+      <!-- Mobile Menu Toggle -->
+      <button class="mobile-menu-toggle" type="button" @click="toggleMobileMenu" aria-label="Toggle menu">
+        <i class='bx bx-menu'></i>
+      </button>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <form @submit.prevent="handleSearch" class="search-form">
+          <div class="search-input-wrapper">
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="search-input"
+              placeholder="Tìm kiếm sản phẩm..."
+              @keyup.enter="handleSearch"
+            >
+            <button type="submit" class="search-btn" aria-label="Search">
+              <i class='bx bx-search'></i>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right Menu -->
+      <div class="navbar-actions">
+        <ul class="navbar-nav-modern">
+          <!-- Cart Icon (only when logged in) -->
+          <li v-if="isLoggedIn" class="nav-item-modern">
+            <router-link to="/gio-hang" class="nav-link-modern cart-link" title="Giỏ hàng">
+              <div class="icon-wrapper position-relative">
+                <i class='bx bx-cart-alt'></i>
+                <span v-if="cartCount > 0" class="cart-badge">{{ cartCount > 99 ? '99+' : cartCount }}</span>
+              </div>
+              <span class="nav-label">Giỏ hàng</span>
+            </router-link>
+          </li>
+
+          <!-- Notifications -->
+          <li v-if="isLoggedIn" class="nav-item-modern dropdown-modern">
+            <button
+              class="nav-link-modern dropdown-toggle-modern"
+              type="button"
+              @click="toggleNotifications"
+              :aria-expanded="showNotifications"
+              aria-label="Notifications"
+            >
+              <div class="icon-wrapper position-relative">
+                <i class='bx bx-bell'></i>
+                <span v-if="unreadNotificationsCount > 0" class="notification-badge">
+                  {{ unreadNotificationsCount > 99 ? '99+' : unreadNotificationsCount }}
+                </span>
+              </div>
+              <span class="nav-label">Thông báo</span>
+            </button>
+            <div v-show="showNotifications" class="dropdown-menu-modern notification-dropdown">
+              <div class="dropdown-header">
+                <h6 class="dropdown-title">Thông báo</h6>
+                <button
+                  v-if="unreadNotificationsCount > 0"
+                  class="btn-mark-all-read"
+                  type="button"
+                  @click="markAllAsRead"
+                >
+                  Đánh dấu đã đọc
+                </button>
+              </div>
+              <div class="dropdown-body">
+                <div v-if="notifications.length === 0" class="empty-notifications">
+                  <i class='bx bx-bell-off'></i>
+                  <p>Chưa có thông báo nào</p>
+                </div>
+                <div v-else class="notifications-list">
+                  <div
+                    v-for="notification in notifications"
+                    :key="notification.id"
+                    class="notification-item"
+                    :class="{ unread: !notification.is_read }"
+                    @click="handleNotificationClick(notification)"
+                  >
+                    <div class="notification-icon" :class="getNotificationIconClass(notification.type)">
+                      <i :class="getNotificationIcon(notification.type)"></i>
+                    </div>
+                    <div class="notification-content">
+                      <h6 class="notification-title">{{ notification.title }}</h6>
+                      <p class="notification-message">{{ notification.message }}</p>
+                      <span class="notification-time">{{ formatTime(notification.created_at) }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-if="notifications.length > 0" class="dropdown-footer">
+                <router-link to="/thong-bao" class="view-all-link">Xem tất cả thông báo</router-link>
+              </div>
+            </div>
+          </li>
+
+          <!-- User Menu -->
+          <li class="nav-item-modern dropdown-modern">
+            <button
+              v-if="isLoggedIn"
+              class="nav-link-modern user-menu-toggle"
+              type="button"
+              @click="toggleUserMenu"
+              :aria-expanded="showUserMenu"
+            >
+              <div class="user-avatar">
+                <img :src="userAvatar" :alt="userName" @error="onAvatarError">
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ userName }}</span>
+                <span class="user-role">{{ userRole }}</span>
+              </div>
+              <i class='bx bx-chevron-down'></i>
+            </button>
+            <router-link v-else to="/dang-nhap" class="nav-link-modern login-link">
+              <i class='bx bx-user'></i>
+              <span>Đăng nhập</span>
+            </router-link>
+            <div v-if="isLoggedIn && showUserMenu" class="dropdown-menu-modern user-dropdown">
+              <div class="dropdown-header user-header">
+                <div class="user-avatar-large">
+                  <img :src="userAvatar" :alt="userName" @error="onAvatarError">
+                </div>
+                <div class="user-details">
+                  <h6 class="user-name-large">{{ userName }}</h6>
+                  <p class="user-email">{{ userEmail }}</p>
+                </div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-body">
+                <router-link to="/profile" class="dropdown-item-modern" @click="closeUserMenu">
+                  <i class='bx bx-user'></i>
+                  <span>Thông tin tài khoản</span>
+                </router-link>
+                <router-link to="/nguoi-ban/san-pham" class="dropdown-item-modern" @click="closeUserMenu">
+                  <i class='bx bx-package'></i>
+                  <span>Sản phẩm của tôi</span>
+                </router-link>
+                <router-link to="/trang-ban-hang" class="dropdown-item-modern" @click="closeUserMenu">
+                  <i class='bx bx-store'></i>
+                  <span>Trang bán hàng</span>
+                </router-link>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item-modern logout-item" type="button" @click="handleLogout">
+                  <i class='bx bx-log-out'></i>
+                  <span>Đăng xuất</span>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Overlay for mobile menu -->
+    <div v-if="showMobileMenu" class="mobile-overlay" @click="toggleMobileMenu"></div>
+  </div>
 </template>
-<script>
-export default {
 
+<script setup>
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+
+const router = useRouter()
+const CART_STORAGE_KEY = 'fe_marketplace_cart'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/client'
+
+// State
+const searchQuery = ref('')
+const isLoggedIn = ref(false)
+const cartCount = ref(0)
+const showNotifications = ref(false)
+const showUserMenu = ref(false)
+const showMobileMenu = ref(false)
+const notifications = ref([])
+const userInfo = ref(null)
+
+// Computed
+const unreadNotificationsCount = computed(() => {
+  return notifications.value.filter(n => !n.is_read).length
+})
+
+const userName = computed(() => {
+  if (!userInfo.value) return 'Người dùng'
+  return userInfo.value.ho_va_ten || userInfo.value.name || 'Người dùng'
+})
+
+const userEmail = computed(() => {
+  if (!userInfo.value) return ''
+  return userInfo.value.email || ''
+})
+
+const userRole = computed(() => {
+  if (!userInfo.value) return 'Khách'
+  // Có thể check role từ userInfo
+  return 'Người mua'
+})
+
+const userAvatar = computed(() => {
+  if (!userInfo.value) return 'https://via.placeholder.com/40x40?text=U'
+  return userInfo.value.avatar || userInfo.value.hinh_anh || 'https://via.placeholder.com/40x40?text=U'
+})
+
+// Methods
+function checkAuth() {
+  const token = localStorage.getItem('key_client')
+  isLoggedIn.value = !!token
+  if (isLoggedIn.value) {
+    loadUserInfo()
+    loadCart()
+    loadNotifications()
+  } else {
+    cartCount.value = 0
+    notifications.value = []
+  }
 }
+
+function loadUserInfo() {
+  try {
+    const stored = localStorage.getItem('user_info')
+    if (stored) {
+      userInfo.value = JSON.parse(stored)
+    } else {
+      // Nếu chưa có, có thể gọi API để lấy
+      fetchUserInfo()
+    }
+  } catch (e) {
+    console.warn('Không thể load user info', e)
+    fetchUserInfo()
+  }
+}
+
+async function fetchUserInfo() {
+  try {
+    const token = localStorage.getItem('key_client')
+    if (!token) return
+    
+    const { data } = await axios.get(`${API_BASE_URL}/thong-tin`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    const payload = data?.data || data
+    if (payload) {
+      userInfo.value = payload
+      localStorage.setItem('user_info', JSON.stringify(payload))
+    }
+  } catch (err) {
+    console.warn('Không thể tải thông tin người dùng', err)
+  }
+}
+
+function loadCart() {
+  try {
+    const cartData = localStorage.getItem(CART_STORAGE_KEY)
+    if (cartData) {
+      const cartItems = JSON.parse(cartData)
+      cartCount.value = Array.isArray(cartItems) 
+        ? cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0)
+        : 0
+    } else {
+      cartCount.value = 0
+    }
+  } catch (e) {
+    console.warn('Không thể load giỏ hàng', e)
+    cartCount.value = 0
+  }
+}
+
+async function loadNotifications() {
+  if (!isLoggedIn.value) {
+    notifications.value = []
+    return
+  }
+  
+  try {
+    // TODO: Tạo API endpoint cho thông báo
+    // const { data } = await axios.get(`${API_BASE_URL}/thong-bao`, {
+    //   headers: {
+    //     'Authorization': `Bearer ${localStorage.getItem('key_client')}`
+    //   }
+    // })
+    // notifications.value = data?.data || []
+    
+    // Mock notifications for now
+    notifications.value = [
+      {
+        id: 1,
+        type: 'order',
+        title: 'Đơn hàng mới',
+        message: 'Bạn có đơn hàng #DH12345678 mới',
+        is_read: false,
+        created_at: new Date().toISOString(),
+        link: '/don-hang/1'
+      },
+      {
+        id: 2,
+        type: 'product',
+        title: 'Sản phẩm đã được duyệt',
+        message: 'Sản phẩm "iPhone 13" đã được duyệt và hiển thị',
+        is_read: false,
+        created_at: new Date(Date.now() - 3600000).toISOString(),
+        link: '/san-pham/1'
+      }
+    ]
+  } catch (err) {
+    console.warn('Không thể tải thông báo', err)
+    notifications.value = []
+  }
+}
+
+function handleSearch() {
+  if (!searchQuery.value.trim()) return
+  router.push({
+    path: '/search',
+    query: { q: searchQuery.value.trim() }
+  })
+}
+
+function toggleNotifications() {
+  showNotifications.value = !showNotifications.value
+  if (showNotifications.value) {
+    showUserMenu.value = false
+  }
+}
+
+function toggleUserMenu() {
+  showUserMenu.value = !showUserMenu.value
+  if (showUserMenu.value) {
+    showNotifications.value = false
+  }
+}
+
+function closeUserMenu() {
+  showUserMenu.value = false
+}
+
+function toggleMobileMenu() {
+  showMobileMenu.value = !showMobileMenu.value
+}
+
+function handleNotificationClick(notification) {
+  if (notification.link) {
+    router.push(notification.link)
+  }
+  // Đánh dấu đã đọc
+  if (!notification.is_read) {
+    markAsRead(notification.id)
+  }
+  showNotifications.value = false
+}
+
+function markAsRead(notificationId) {
+  const index = notifications.value.findIndex(n => n.id === notificationId)
+  if (index > -1) {
+    notifications.value[index].is_read = true
+    // TODO: Gọi API để đánh dấu đã đọc
+    // axios.patch(`${API_BASE_URL}/thong-bao/${notificationId}/read`)
+  }
+}
+
+function markAllAsRead() {
+  notifications.value.forEach(n => {
+    n.is_read = true
+  })
+  // TODO: Gọi API để đánh dấu tất cả đã đọc
+  // axios.post(`${API_BASE_URL}/thong-bao/mark-all-read`)
+}
+
+function handleLogout() {
+  if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+    localStorage.removeItem('key_client')
+    localStorage.removeItem('user_info')
+    isLoggedIn.value = false
+    userInfo.value = null
+    cartCount.value = 0
+    notifications.value = []
+    showUserMenu.value = false
+    router.push('/trang-chu')
+  }
+}
+
+function getNotificationIcon(type) {
+  const icons = {
+    'order': 'bx bx-package',
+    'product': 'bx bx-box',
+    'message': 'bx bx-message',
+    'system': 'bx bx-info-circle'
+  }
+  return icons[type] || 'bx bx-bell'
+}
+
+function getNotificationIconClass(type) {
+  const classes = {
+    'order': 'icon-order',
+    'product': 'icon-product',
+    'message': 'icon-message',
+    'system': 'icon-system'
+  }
+  return classes[type] || 'icon-default'
+}
+
+function formatTime(dateString) {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const now = new Date()
+  const diff = now - date
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  
+  if (minutes < 1) return 'Vừa xong'
+  if (minutes < 60) return `${minutes} phút trước`
+  if (hours < 24) return `${hours} giờ trước`
+  if (days < 7) return `${days} ngày trước`
+  return date.toLocaleDateString('vi-VN')
+}
+
+function onLogoError(event) {
+  event.target.src = 'https://via.placeholder.com/40x40?text=CD'
+}
+
+function onAvatarError(event) {
+  event.target.src = 'https://via.placeholder.com/40x40?text=U'
+}
+
+// Watch for route changes to refresh cart
+watch(() => router.currentRoute.value.path, () => {
+  loadCart()
+})
+
+// Watch for cart changes in localStorage
+function watchCartChanges() {
+  // Poll for cart changes (localStorage không trigger event trong cùng tab)
+  const cartInterval = setInterval(() => {
+    loadCart()
+  }, 2000) // Check every 2 seconds
+  
+  // Also listen for storage events from other tabs
+  const handleStorageChange = (e) => {
+    if (e.key === CART_STORAGE_KEY) {
+      loadCart()
+    }
+  }
+  
+  window.addEventListener('storage', handleStorageChange)
+  
+  return () => {
+    clearInterval(cartInterval)
+    window.removeEventListener('storage', handleStorageChange)
+  }
+}
+
+// Close dropdowns when clicking outside
+function setupClickOutside() {
+  const handleClickOutside = (e) => {
+    if (!e.target.closest('.dropdown-modern') && !e.target.closest('.nav-item-modern')) {
+      showNotifications.value = false
+      showUserMenu.value = false
+    }
+  }
+  
+  document.addEventListener('click', handleClickOutside)
+  
+  return () => {
+    document.removeEventListener('click', handleClickOutside)
+  }
+}
+
+// Listen for cart update events
+function setupCartEventListeners() {
+  const handleCartUpdate = () => {
+    loadCart()
+  }
+  
+  // Listen for custom event from other components
+  window.addEventListener('cart-updated', handleCartUpdate)
+  
+  // Reload cart when window gets focus
+  const handleFocus = () => {
+    if (isLoggedIn.value) {
+      loadCart()
+    }
+  }
+  
+  window.addEventListener('focus', handleFocus)
+  
+  return () => {
+    window.removeEventListener('cart-updated', handleCartUpdate)
+    window.removeEventListener('focus', handleFocus)
+  }
+}
+
+let cleanupCartWatcher = null
+let cleanupClickOutside = null
+let cleanupCartEvents = null
+
+onMounted(() => {
+  checkAuth()
+  loadCart()
+  cleanupCartWatcher = watchCartChanges()
+  cleanupClickOutside = setupClickOutside()
+  cleanupCartEvents = setupCartEventListeners()
+})
+
+onUnmounted(() => {
+  if (cleanupCartWatcher) cleanupCartWatcher()
+  if (cleanupClickOutside) cleanupClickOutside()
+  if (cleanupCartEvents) cleanupCartEvents()
+})
 </script>
-<style></style>
+
+<style scoped>
+.topbar-modern {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  /* Removed sticky and shadow - will be handled by header-wrapper */
+}
+
+.navbar-modern {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Brand */
+.navbar-brand-modern {
+  flex-shrink: 0;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+}
+
+.brand-link:hover {
+  opacity: 0.8;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #16a34a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #374151;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* Search */
+.search-container {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-form {
+  width: 100%;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 48px 10px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 24px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.search-btn {
+  position: absolute;
+  right: 4px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-btn:hover {
+  background: #15803d;
+}
+
+/* Navbar Actions */
+.navbar-actions {
+  flex-shrink: 0;
+}
+
+.navbar-nav-modern {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item-modern {
+  position: relative;
+}
+
+.nav-link-modern {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.nav-link-modern:hover {
+  background: #f3f4f6;
+  color: #16a34a;
+}
+
+.cart-link,
+.login-link {
+  color: #16a34a;
+}
+
+.icon-wrapper {
+  position: relative;
+  font-size: 24px;
+}
+
+.cart-badge,
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: white;
+  border-radius: 10px;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.nav-label {
+  display: none;
+}
+
+/* User Menu */
+.user-menu-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1;
+}
+
+/* Dropdown */
+.dropdown-modern {
+  position: relative;
+}
+
+.dropdown-menu-modern {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  min-width: 320px;
+  max-width: 400px;
+  max-height: 500px;
+  overflow: hidden;
+  z-index: 1001;
+  border: 1px solid #e5e7eb;
+}
+
+/* Ensure dropdowns appear above sticky header */
+.header-wrapper-sticky .dropdown-menu-modern {
+  z-index: 1002;
+}
+
+.notification-dropdown {
+  min-width: 360px;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dropdown-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.btn-mark-all-read {
+  background: none;
+  border: none;
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.btn-mark-all-read:hover {
+  background: #f3f4f6;
+}
+
+.dropdown-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.empty-notifications {
+  padding: 40px 20px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.empty-notifications i {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.notifications-list {
+  padding: 8px;
+}
+
+.notification-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.notification-item:hover {
+  background: #f9fafb;
+}
+
+.notification-item.unread {
+  background: #eff6ff;
+}
+
+.notification-item.unread:hover {
+  background: #dbeafe;
+}
+
+.notification-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.icon-order {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.icon-product {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.icon-message {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.icon-system {
+  background: #e9d5ff;
+  color: #9333ea;
+}
+
+.icon-default {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+.notification-message {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.dropdown-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.view-all-link {
+  color: #16a34a;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* User Dropdown */
+.user-dropdown {
+  min-width: 280px;
+}
+
+.user-header {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.user-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #16a34a;
+  margin-bottom: 12px;
+}
+
+.user-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-details {
+  width: 100%;
+}
+
+.user-name-large {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+.user-email {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 8px 0;
+}
+
+.dropdown-item-modern {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #374151;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-item-modern:hover {
+  background: #f9fafb;
+  color: #16a34a;
+}
+
+.dropdown-item-modern i {
+  font-size: 20px;
+  width: 24px;
+}
+
+.logout-item {
+  color: #ef4444;
+}
+
+.logout-item:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .navbar-modern {
+    padding: 12px 16px;
+  }
+  
+  .search-container {
+    max-width: 400px;
+  }
+  
+  .nav-label {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+  
+  .search-container {
+    order: 3;
+    width: 100%;
+    max-width: none;
+    margin-top: 12px;
+  }
+  
+  .navbar-modern {
+    flex-wrap: wrap;
+  }
+  
+  .nav-label {
+    display: none;
+  }
+  
+  .user-info {
+    display: none;
+  }
+  
+  .dropdown-menu-modern {
+    right: -16px;
+    min-width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-title {
+    font-size: 16px;
+  }
+  
+  .brand-subtitle {
+    font-size: 11px;
+  }
+  
+  .navbar-modern {
+    padding: 8px 12px;
+  }
+}
+</style>

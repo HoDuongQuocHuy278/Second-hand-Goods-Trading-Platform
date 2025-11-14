@@ -318,6 +318,8 @@ function addToCart(product) {
     })
   }
   localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(list))
+  // Dispatch event to update cart count in header
+  window.dispatchEvent(new CustomEvent('cart-updated'))
   // Nếu có plugin toast có thể gọi, còn không dùng alert
   if (typeof window !== 'undefined' && window?.$toast) {
     window.$toast.success('Đã thêm vào giỏ hàng!')

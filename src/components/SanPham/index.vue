@@ -244,6 +244,8 @@ export default {
         })
       }
       localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(list))
+      // Dispatch event to update cart count in header
+      window.dispatchEvent(new CustomEvent('cart-updated'))
       if (typeof window !== 'undefined' && window?.$toast) {
         window.$toast.success('Đã thêm vào giỏ hàng!')
       } else {

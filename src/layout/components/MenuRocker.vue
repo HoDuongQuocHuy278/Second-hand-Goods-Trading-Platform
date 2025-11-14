@@ -1,39 +1,139 @@
 <template>
-	<div class="nav-container primary-menu">
-		<div class="mobile-topbar-header">
-			<div>
-				<img src="../../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+	<div class="menu-modern-container">
+		<nav class="menu-modern-nav">
+			<div class="menu-modern-wrapper">
+				<ul class="menu-modern-list">
+					<li class="menu-modern-item">
+						<router-link to="/trang-chu" class="menu-modern-link" active-class="active">
+							<i class='bx bx-home'></i>
+							<span>Trang chủ</span>
+						</router-link>
+					</li>
+					<li class="menu-modern-item">
+						<router-link to="/danh-sach-san-pham" class="menu-modern-link" active-class="active">
+							<i class='bx bx-grid-alt'></i>
+							<span>Sản phẩm</span>
+						</router-link>
+					</li>
+					<li class="menu-modern-item">
+						<router-link to="/trang-ban-hang" class="menu-modern-link" active-class="active">
+							<i class='bx bx-store'></i>
+							<span>Trang bán hàng</span>
+						</router-link>
+					</li>
+					<li class="menu-modern-item">
+						<router-link to="/sell" class="menu-modern-link" active-class="active">
+							<i class='bx bx-plus-circle'></i>
+							<span>Đăng bán</span>
+						</router-link>
+					</li>
+				</ul>
 			</div>
-			<div>
-				<h4 class="logo-text">Rukada</h4>
-			</div>
-			<div class="toggle-icon ms-auto"><i class='bx bx-arrow-to-left'></i>
-			</div>
-		</div>
-		<nav class="navbar navbar-expand-xl w-100 text-nowrap">
-			<ul class="navbar-nav justify-content-start flex-grow-1 gap-1">
-				<li class="nav-item">
-					<a class="nav-link" href="/trang-chu">
-						<div class="parent-icon"><i class="bx bx-category"></i>
-						</div>
-						<div class="menu-title">Trang chủ</div>
-					</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="/trang-ban-hang">
-						<div class="parent-icon"><i class="bx bx-category"></i>
-						</div>
-						<div class="menu-title">Trang Bán Hàng</div>
-					</a>
-				</li>
-				
-			</ul>
 		</nav>
 	</div>
 </template>
 <script>
 export default {
-
+	name: 'MenuRocker'
 }
 </script>
-<style></style>
+<style scoped>
+.menu-modern-container {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  /* Remove border-top to connect with TopRocker */
+}
+
+.menu-modern-nav {
+  width: 100%;
+  background: #ffffff;
+}
+
+.menu-modern-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.menu-modern-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.menu-modern-list::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-modern-item {
+  flex-shrink: 0;
+}
+
+.menu-modern-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.menu-modern-link i {
+  font-size: 18px;
+}
+
+.menu-modern-link:hover {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.menu-modern-link.active {
+  color: #16a34a;
+  background: #f0fdf4;
+  border-bottom-color: #16a34a;
+  font-weight: 600;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .menu-modern-wrapper {
+    padding: 0 16px;
+  }
+  
+  .menu-modern-link {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  .menu-modern-link span {
+    display: none;
+  }
+  
+  .menu-modern-link i {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-modern-list {
+    gap: 4px;
+  }
+  
+  .menu-modern-link {
+    padding: 8px 12px;
+  }
+}
+</style>
