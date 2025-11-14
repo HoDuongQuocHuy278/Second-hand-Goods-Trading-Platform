@@ -381,7 +381,7 @@ function markAllAsRead() {
     n.is_read = true
   })
   // TODO: Gọi API để đánh dấu tất cả đã đọc
-  // axios.post(`${API_BASE_URL}/thong-bao/mark-all-read`)
+  // axios.post(`$/thong-bao/mark-all-read`)
 }
 
 function handleLogout() {
