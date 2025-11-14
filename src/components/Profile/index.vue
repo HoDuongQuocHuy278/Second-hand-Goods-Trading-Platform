@@ -93,7 +93,7 @@
                                 </div>
 
 
-                                <button class="save-btn">💾 Lưu Thay Đổi</button>
+                                <button class="save-btn" @click="saveProfile" :disabled="isLoading">💾 Lưu Thay Đổi</button>
                             </div>
 
                             <div class="avatar-section">
@@ -120,7 +120,7 @@
                                 <label>Chủ Tài Khoản</label>
                                 <input type="text" v-model="bank.owner" placeholder="Tên chủ tài khoản" />
                             </div>
-                            <button class="save-btn">💳 Lưu Thông Tin</button>
+                            <button class="save-btn" @click="saveBank" :disabled="isLoading">💳 Lưu Thông Tin</button>
                         </div>
                     </div>
 
@@ -140,7 +140,7 @@
                                 <label>Địa Chỉ Cụ Thể</label>
                                 <textarea v-model="address.full" rows="3"></textarea>
                             </div>
-                            <button class="save-btn">📍 Lưu Địa Chỉ</button>
+                            <button class="save-btn" @click="saveAddress" :disabled="isLoading">📍 Lưu Địa Chỉ</button>
                         </div>
                     </div>
 
@@ -160,7 +160,7 @@
                                 <label>Nhập Lại Mật Khẩu Mới</label>
                                 <input type="password" v-model="password.confirm" />
                             </div>
-                            <button class="save-btn">🔐 Cập Nhật Mật Khẩu</button>
+                            <button class="save-btn" @click="changePassword" :disabled="isLoading">🔐 Cập Nhật Mật Khẩu</button>
                         </div>
                     </div>
 
@@ -199,24 +199,22 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
     name: "UserProfileShopeeStyle",
     data() {
         return {
+            API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/client',
             activeMenu: "profile",
+            isLoading: false,
             user: { username: "toicua_toi", fullName: "Tôi", email: "toi***@gmail.com", phone: "", gender: "Nam" },
             dob: { day: "Ngày", month: "Tháng", year: "Năm" },
             bank: { name: "", number: "", owner: "" },
             address: { name: "", phone: "", full: "" },
             password: { current: "", new: "", confirm: "" },
-            orders: [
-                { product: "Tai nghe Bluetooth", quantity: 1, status: "Hoàn thành", price: 299000, image: "https://picsum.photos/seed/head/100" },
-                { product: "Giày thể thao nam", quantity: 2, status: "Đang giao", price: 890000, image: "https://picsum.photos/seed/shoes/100" },
-            ],
-            vouchers: [
-                { title: "Giảm 20K cho đơn 199K", desc: "Áp dụng cho tất cả sản phẩm." },
-                { title: "Freeship toàn quốc", desc: "Miễn phí vận chuyển mọi đơn hàng." },
-            ],
+            orders: [],
+            vouchers: [],
         };
     },
     computed: {
@@ -225,6 +223,152 @@ export default {
             return Array.from({ length: 50 }, (_, i) => now - i);
         },
     },
+    mounted() {
+        this.fetchProfile()
+        this.fetchOrders()
+        this.fetchVouchers()
+    },
+    methods: {
+        async fetchProfile() {
+            this.isLoading = true
+            try {
+                const { data } = await axios.get(`${this.API_BASE_URL}/profile`)
+                const payload = data?.data || data
+                if (payload) {
+                    this.user = {
+                        username: payload.username || payload.ten_dang_nhap || this.user.username,
+                        fullName: payload.ho_va_ten || payload.full_name || this.user.fullName,
+                        email: payload.email || this.user.email,
+                        phone: payload.so_dien_thoai || payload.phone || this.user.phone,
+                        gender: payload.gioi_tinh || payload.gender || this.user.gender
+                    }
+                    if (payload.ngay_sinh) {
+                        const date = new Date(payload.ngay_sinh)
+                        this.dob.day = date.getDate()
+                        this.dob.month = date.getMonth() + 1
+                        this.dob.year = date.getFullYear()
+                    }
+                }
+            } catch (err) {
+                console.warn('Không thể tải thông tin profile', err)
+            } finally {
+                this.isLoading = false
+            }
+        },
+        async fetchOrders() {
+            try {
+                const { data } = await axios.get(`${this.API_BASE_URL}/don-hang`)
+                this.orders = data?.data || data || []
+            } catch (err) {
+                console.warn('Không thể tải đơn hàng', err)
+                this.orders = []
+            }
+        },
+        async fetchVouchers() {
+            try {
+                const { data } = await axios.get(`${this.API_BASE_URL}/voucher`)
+                this.vouchers = data?.data || data || []
+            } catch (err) {
+                console.warn('Không thể tải voucher', err)
+                this.vouchers = []
+            }
+        },
+        async saveProfile() {
+            this.isLoading = true
+            try {
+                const payload = {
+                    ho_va_ten: this.user.fullName,
+                    email: this.user.email,
+                    so_dien_thoai: this.user.phone,
+                    gioi_tinh: this.user.gender,
+                    ngay_sinh: `${this.dob.year}-${String(this.dob.month).padStart(2, '0')}-${String(this.dob.day).padStart(2, '0')}`
+                }
+                await axios.put(`${this.API_BASE_URL}/profile`, payload)
+                if (window?.$toast) {
+                    window.$toast.success('Cập nhật hồ sơ thành công!')
+                } else {
+                    alert('Cập nhật hồ sơ thành công!')
+                }
+            } catch (err) {
+                const msg = err?.response?.data?.message || 'Không thể cập nhật hồ sơ.'
+                if (window?.$toast) {
+                    window.$toast.error(msg)
+                } else {
+                    alert(msg)
+                }
+            } finally {
+                this.isLoading = false
+            }
+        },
+        async saveBank() {
+            this.isLoading = true
+            try {
+                await axios.put(`${this.API_BASE_URL}/profile/bank`, this.bank)
+                if (window?.$toast) {
+                    window.$toast.success('Cập nhật thông tin ngân hàng thành công!')
+                } else {
+                    alert('Cập nhật thông tin ngân hàng thành công!')
+                }
+            } catch (err) {
+                const msg = err?.response?.data?.message || 'Không thể cập nhật thông tin ngân hàng.'
+                if (window?.$toast) {
+                    window.$toast.error(msg)
+                } else {
+                    alert(msg)
+                }
+            } finally {
+                this.isLoading = false
+            }
+        },
+        async saveAddress() {
+            this.isLoading = true
+            try {
+                await axios.put(`${this.API_BASE_URL}/profile/address`, this.address)
+                if (window?.$toast) {
+                    window.$toast.success('Cập nhật địa chỉ thành công!')
+                } else {
+                    alert('Cập nhật địa chỉ thành công!')
+                }
+            } catch (err) {
+                const msg = err?.response?.data?.message || 'Không thể cập nhật địa chỉ.'
+                if (window?.$toast) {
+                    window.$toast.error(msg)
+                } else {
+                    alert(msg)
+                }
+            } finally {
+                this.isLoading = false
+            }
+        },
+        async changePassword() {
+            if (this.password.new !== this.password.confirm) {
+                alert('Mật khẩu nhập lại không khớp!')
+                return
+            }
+            this.isLoading = true
+            try {
+                await axios.put(`${this.API_BASE_URL}/profile/password`, {
+                    current_password: this.password.current,
+                    new_password: this.password.new
+                })
+                if (window?.$toast) {
+                    window.$toast.success('Đổi mật khẩu thành công!')
+                } else {
+                    alert('Đổi mật khẩu thành công!')
+                }
+                this.password = { current: "", new: "", confirm: "" }
+            } catch (err) {
+                const msg = err?.response?.data?.message || 'Không thể đổi mật khẩu.'
+                if (window?.$toast) {
+                    window.$toast.error(msg)
+                } else {
+                    alert(msg)
+                }
+            } finally {
+                this.isLoading = false
+            }
+        }
+    }
 };
 </script>
 

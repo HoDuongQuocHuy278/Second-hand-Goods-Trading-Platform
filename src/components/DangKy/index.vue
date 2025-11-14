@@ -169,8 +169,9 @@ export default {
       if(!this.agree){ this.touched.agree = true; this.validate(); return }
 
       this.isLoading = true
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/client'
       try{
-        const res = await axios.post('http://127.0.0.1:8000/api/client/dang-ky', this.user)
+        const res = await axios.post(`${API_BASE_URL}/dang-ky`, this.user)
         if(res.data?.status){
           this.$toast?.success(res.data?.message || 'Đăng ký thành công, vui lòng kiểm tra email kích hoạt.')
           // Option: chuyển qua đăng nhập

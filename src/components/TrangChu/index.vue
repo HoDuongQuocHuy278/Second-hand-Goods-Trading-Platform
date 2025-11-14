@@ -61,10 +61,13 @@
       </div>
 
       <div class="row g-3">
-        <div class="col-6 col-md-4 col-lg-2" v-for="c in cats" :key="c.slug">
-          <a class="cat-card text-reset" :href="buildSearchUrl(c.slug)" :aria-label="`Xem danh mục ${c.name}`">
-            <div class="cat-ico">{{ c.icon }}</div>
-            <div class="fw-semibold mt-1 cat-name">{{ c.name }}</div>
+        <div class="col-6 col-md-4 col-lg-2" v-for="c in cats" :key="c.slug || c.id">
+          <a class="cat-card text-reset" :href="buildSearchUrl(c.slug)" :aria-label="`Xem danh mục ${c.name || c.ten_danh_muc}`">
+            <div class="cat-ico" v-if="c.hinh_anh">
+              <img :src="c.hinh_anh" :alt="c.name || c.ten_danh_muc" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;" />
+            </div>
+            <div class="cat-ico" v-else>{{ c.icon || getCategoryIcon(c.slug) }}</div>
+            <div class="fw-semibold mt-1 cat-name">{{ c.name || c.ten_danh_muc }}</div>
           </a>
         </div>
       </div>
@@ -117,106 +120,139 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+<script>
+import axios from 'axios'
 
-const isLoggedIn = ref(false)
-const routes = reactive({
-  sell: '/sell',
-  login: '/dang-nhap',
-  register: '/dang-ky',   // thêm route đăng ký
-  search: '/search'
-})
+export default {
+  name: 'TrangChu',
+  data() {
+    return {
+      API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/client',
+      isLoggedIn: false,
+      routes: {
+        sell: '/sell',
+        login: '/dang-nhap',
+        register: '/dang-ky',
+        search: '/search'
+      },
+      cats: [],
+      showChat: false,
+      messages: [],
+      msg: '',
+      typing: false,
+      unreadCount: 0
+    }
+  },
+  mounted() {
+    this.isLoggedIn = !!localStorage.getItem('key_client')
+    this.fetchCategories()
+    window.addEventListener('keydown', this.onKey)
+  },
+  beforeUnmount() {
+    window.removeEventListener('keydown', this.onKey)
+  },
+  watch: {
+    messages() {
+      this.$nextTick(this.scrollToBottom)
+    }
+  },
+  methods: {
+    async fetchCategories() {
+      try {
+        const { data } = await axios.get(`${this.API_BASE_URL}/danh-muc`)
+        const rawCategories = data?.data || data || []
+        
+        // Map dữ liệu từ backend sang format frontend cần
+        this.cats = Array.isArray(rawCategories) 
+          ? rawCategories.map(cat => ({
+              id: cat.id,
+              slug: cat.slug,
+              name: cat.ten_danh_muc || cat.name,
+              ten_danh_muc: cat.ten_danh_muc,
+              hinh_anh: cat.hinh_anh,
+              icon: this.getCategoryIcon(cat.slug),
+              mo_ta: cat.mo_ta,
+            }))
+          : [
+            { slug:'dien-thoai', name:'Điện thoại', icon:'📱' },
+            { slug:'sach', name:'Sách', icon:'📚' },
+            { slug:'do-dien-tu', name:'Đồ điện tử', icon:'💡' },
+            { slug:'may-tinh', name:'Máy tính', icon:'🖥️' },
+            { slug:'thoi-trang', name:'Thời trang', icon:'👕' },
+            { slug:'do-gia-dung', name:'Gia dụng', icon:'🍳' },
+          ]
+      } catch (err) {
+        console.warn('Không thể tải danh mục', err)
+        this.cats = [
+          { slug:'dien-thoai', name:'Điện thoại', icon:'📱' },
+          { slug:'sach', name:'Sách', icon:'📚' },
+          { slug:'do-dien-tu', name:'Đồ điện tử', icon:'💡' },
+          { slug:'may-tinh', name:'Máy tính', icon:'🖥️' },
+          { slug:'thoi-trang', name:'Thời trang', icon:'👕' },
+          { slug:'do-gia-dung', name:'Gia dụng', icon:'🍳' },
+        ]
+      }
+    },
+    getCategoryIcon(slug) {
+      const iconMap = {
+        'dien-thoai': '📱',
+        'sach': '📚',
+        'do-dien-tu': '💡',
+        'may-tinh': '🖥️',
+        'thoi-trang': '👕',
+        'do-gia-dung': '🍳',
+      }
+      return iconMap[slug] || '📦'
+    },
+    toggleChat() {
+      this.showChat = !this.showChat
+      if (this.showChat) this.unreadCount = 0
+      this.$nextTick(this.scrollToBottom)
+    },
+    buildSearchUrl(slug) {
+      return `${this.routes.search}?category=${encodeURIComponent(slug)}`
+    },
+    async sendMessage() {
+      const text = this.msg.trim()
+      if (!text) return
 
-const cats = ref([
-  { slug:'dien-thoai', name:'Điện thoại', icon:'📱' },
-  { slug:'sach', name:'Sách', icon:'📚' },
-  { slug:'do-dien-tu', name:'Đồ điện tử', icon:'💡' },
-  { slug:'may-tinh', name:'Máy tính', icon:'🖥️' },
-  { slug:'thoi-trang', name:'Thời trang', icon:'👕' },
-  { slug:'do-gia-dung', name:'Gia dụng', icon:'🍳' },
-])
+      this.messages.push({ from: 'you', text })
+      this.msg = ''
+      this.typing = true
 
-const showChat = ref(false)
-const messages = ref([])
-const msg = ref('')
-const typing = ref(false)
-const unreadCount = ref(0)
-const chatboxRef = ref(null)
+      try {
+        const res = await fetch('/chatbot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        })
+        const data = await res.json()
+        this.messages.push({ from: 'bot', text: data.reply || data.error || 'Không có phản hồi' })
+      } catch (e) {
+        this.messages.push({ from: 'bot', text: 'Lỗi kết nối server' })
+      } finally {
+        this.typing = false
+      }
 
-function toggleChat () {
-  showChat.value = !showChat.value
-  if (showChat.value) unreadCount.value = 0
-  nextTick(scrollToBottom)
-}
-
-function buildSearchUrl (slug) {
-  return `${routes.search}?category=${encodeURIComponent(slug)}`
-}
-
-async function sendMessage () {
-  const text = msg.value.trim()
-  if (!text) return
-
-  // (Tuỳ chọn) bắt buộc đăng nhập trước khi dùng chat:
-  // if (!isLoggedIn.value) {
-  //   messages.value.push({ from: 'bot', text: 'Vui lòng đăng nhập để dùng chatbot nhé.' })
-  //   showChat.value = true
-  //   return
-  // }
-
-  messages.value.push({ from: 'you', text })
-  msg.value = ''
-  typing.value = true
-
-  try {
-    const res = await fetch('/chatbot', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
-    })
-    const data = await res.json()
-    messages.value.push({ from: 'bot', text: data.reply || data.error || 'Không có phản hồi' })
-  } catch (e) {
-    messages.value.push({ from: 'bot', text: 'Lỗi kết nối server' })
-  } finally {
-    typing.value = false
+      await this.$nextTick()
+      this.scrollToBottom()
+      if (!this.showChat) this.unreadCount++
+    },
+    scrollToBottom() {
+      const chatbox = this.$refs.chatboxRef
+      if (chatbox) chatbox.scrollTop = chatbox.scrollHeight
+    },
+    onKey(e) {
+      if (e.altKey && (e.key === 'c' || e.key === 'C')) {
+        e.preventDefault()
+        this.toggleChat()
+      }
+      if (e.key === 'Escape' && this.showChat) {
+        this.toggleChat()
+      }
+    }
   }
-
-  await nextTick()
-  scrollToBottom()
-  if (!showChat.value) unreadCount.value++
 }
-
-function scrollToBottom () {
-  if (chatboxRef.value) chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight
-}
-
-// Keyboard shortcuts
-function onKey (e) {
-  if (e.altKey && (e.key === 'c' || e.key === 'C')) {
-    e.preventDefault(); toggleChat()
-  }
-  if (e.key === 'Escape' && showChat.value) {
-    toggleChat()
-  }
-}
-
-onMounted(() => {
-  // Detect đăng nhập: dựa vào token lưu từ backend của bạn
-  isLoggedIn.value = !!localStorage.getItem('key_client')
-
-  // Hoặc gọi API /client/check nếu bạn đã làm (đồng bộ với controller)
-  // fetch('/api/client/check').then(r => r.json()).then(d => {
-  //   isLoggedIn.value = !!d?.status
-  // }).catch(() => {})
-
-  window.addEventListener('keydown', onKey)
-})
-
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
-
-// Auto-scroll when new messages arrive while open
-watch(messages, () => nextTick(scrollToBottom))
 </script>
 
 <style scoped>

@@ -311,8 +311,13 @@
   
       const { data } = await api.post('/api/listings', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       localStorage.removeItem('sell_draft')
-      alert('Đăng bán thành công!')
-      // this.$router?.push(`/listing/${data.id}`)
+      if(data?.status && data?.message){
+        alert(data.message)
+        // Redirect to product page or user's products list
+        window.location.href = '/nguoi-ban/san-pham'
+      } else {
+        alert('Đăng bán thành công!')
+      }
     }catch(err){
       const msg = err?.response?.data?.message || err.message || 'Có lỗi xảy ra'
       alert(msg)

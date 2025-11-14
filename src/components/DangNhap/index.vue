@@ -159,8 +159,9 @@ export default {
     async dangNhap(){
       if(!this.validate()) return
       this.loading = true
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/client'
       try{
-        const res = await axios.post('http://127.0.0.1:8000/api/client/dang-nhap', this.thong_tin_dang_nhap)
+        const res = await axios.post(`${API_BASE_URL}/dang-nhap`, this.thong_tin_dang_nhap)
         if(res.data?.status){
           this.$toast?.success(res.data.message || 'Đăng nhập thành công')
           localStorage.setItem('key_client', res.data.token)

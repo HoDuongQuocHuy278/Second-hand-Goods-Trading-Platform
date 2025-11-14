@@ -216,7 +216,7 @@ export default {
 
       // fallback image
       fallbackImg: "https://via.placeholder.com/600x400?text=No+Image",
-      API_BASE: "http://127.0.0.1:8000/api/client",
+      API_BASE_URL: import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/client",
     };
   },
 
@@ -264,7 +264,7 @@ export default {
     async fetchProducts() {
       this.isLoading = true;
       try {
-        const res = await axios.get(`${this.API_BASE}/san-pham`, { params: this.paramsForAPI() });
+        const res = await axios.get(`${this.API_BASE_URL}/san-pham`, { params: this.paramsForAPI() });
         // Chuẩn paginate của Laravel: { data: { data: [], current_page, last_page, ... } }
         const payload = res?.data?.data;
         this.products = payload?.data || [];
@@ -332,13 +332,40 @@ export default {
 
     // Actions
     addToCart(p) {
-      // Tuỳ hệ thống giỏ hàng; tạm demo:
-      this.$toast?.success(`Đã thêm "${p.name}" vào giỏ`);
+      if (!p?.id) return;
+      const CART_STORAGE_KEY = 'fe_marketplace_cart';
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      const list = raw ? JSON.parse(raw) : [];
+      const idx = Array.isArray(list) ? list.findIndex(item => item.id === p.id) : -1;
+      
+      if (idx > -1) {
+        list[idx].quantity = Math.min(99, Number(list[idx].quantity || 0) + 1);
+      } else {
+        list.push({
+          id: p.id,
+          name: p.name,
+          price: Number(this.finalPrice(p)),
+          quantity: 1,
+          image: p.image || this.fallbackImg,
+          category: p.category || ''
+        });
+      }
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(list));
+      
+      if (this.$toast) {
+        this.$toast.success(`Đã thêm "${p.name}" vào giỏ hàng!`);
+      } else {
+        alert(`Đã thêm "${p.name}" vào giỏ hàng!`);
+      }
     },
     buyNow(p) {
-      // Điều hướng nhanh tới trang thanh toán/chi tiết:
-      this.$toast?.success(`Mua ngay "${p.name}"`);
-      // this.$router.push(`/checkout?product_id=${p.id}`);
+      if (!p?.id) return;
+      this.$router.push({
+        name: "checkout",
+        query: {
+          product_id: p.id,
+        },
+      });
     },
 
     // Helpers
